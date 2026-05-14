@@ -12,3 +12,28 @@ type UserData = {
 
   clearUserData: () => void;
 };
+type Post = {
+    _id: string;
+
+    author: {
+        _id: string;
+        profileImageURL: string;
+        name: string;
+    };
+
+    title: string;
+
+    images: string[];
+
+    likes: string[];
+
+    likesCount: number;
+
+    comments: string[];
+
+    createdAt: string;
+
+    updatedAt: string;
+
+    __v: number;
+};

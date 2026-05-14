@@ -8,6 +8,7 @@ import { RiAccountCircleFill } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 
 import { useUserData } from "../store/userData";
+import CreatePost from "./CreatePost";
 
 const Nav = () => {
     const userName = useUserData((state) => state.userName);
@@ -56,6 +57,7 @@ const Nav = () => {
            <Link href={"/"}>
         <FaHome />
       </Link>
+     < CreatePost/>
       </div>
     ):
       (

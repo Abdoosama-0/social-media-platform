@@ -55,8 +55,27 @@ const Page = () => {
           <p>Followers Count: {data.followersCount}</p>
 
           <p>Following Count: {data.followingCount}</p>
+          <p>posts:</p>
 
-          <p>Posts Array Length: {data.posts.length}</p>
+          {data.posts.map((post: any) => (
+  <div
+    key={post._id}
+    className="border p-4 rounded mb-4"
+  >
+
+
+    {/* أول صورة فقط */}
+    <img
+      src={post.images[0]}
+      alt="post"
+      className="w-[300px] h-[300px] object-cover rounded mt-2"
+    />
+
+  </div>
+))}
+
+
+
 
         </div>
       ) : (

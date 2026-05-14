@@ -22,6 +22,7 @@ const refreshAccessToken=(refreshToken)=>{
 
 const verifyToken= async (req, res, next) => {
     const accessToken = req.cookies.access_token 
+    console.log(accessToken)
     if (!accessToken) {
         return res.status(401).json({ message: "Unauthorized, you must have accessToken to do this" });
     }

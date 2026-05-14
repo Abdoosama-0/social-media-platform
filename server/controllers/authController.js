@@ -62,7 +62,7 @@ const logout = async (req, res) => {
 
 }
 //=========================================================================
-
+//http://localhost:5000//auth/register
 const register = async (req, res) => {
   const { name, email, username, password } = req.body
   //===================================================================check email=============================================
@@ -99,6 +99,7 @@ const register = async (req, res) => {
     username,
     email,
     password: hashed,
+    profileImageURL,
     expire: Date.now() + 5 * 60 * 1000
   }), 'EX', 300);
 
@@ -143,7 +144,8 @@ const verifyOtp = async (req, res) => {
     name: userData.name,
     email: userData.email,
     username: userData.username,
-    password: userData.password
+    password: userData.password,
+    profileImageURL: userData.profileImageURL
   });
   await newUser.save();
 

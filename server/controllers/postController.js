@@ -1,23 +1,47 @@
 const Post=require('../models/Post')
 const User=require('../models/User')
+//http://localhost:3000/posts/?page=1
+const getPosts = async (req, res) => {
+  try {
+        console.log("1")
 
-const getPosts =async (req,res)=>{
-    const limit = 10
-      const page = parseInt(req.query.page) || 1; // رقم الصفحة من query
-  const skip = (page - 1) * limit;
-    //  const query = {
-    //   author: { $ne: req.user.userID }
-    // };
+    const limit = 10;
 
+    const page =
+      parseInt(req.query.page) || 1;
 
-    const Posts= await Post.find().populate('author', 'name profileImageURL').skip(skip).limit(limit)
-    if(!Posts || Posts.length === 0){
-        return res.status(404).json({msg:"no new posts found"})
-    }
-    const count = await Post.countDocuments();
-    return res.json({msg:`posts for you`,count ,posts:Posts})
-}
+    const skip = (page - 1) * limit;
+        console.log("2")
 
+    const posts = await Post.find()
+      .populate(
+        "author",
+        "name profileImageURL"
+      )
+      .sort({ createdAt: -1 }) // الأحدث أولًا
+      .skip(skip)
+      .limit(limit);
+        console.log("3")
+
+    const count =
+      await Post.countDocuments();
+
+    res.json({
+      posts,
+      count,
+      currentPage: page,
+      hasMore: skip + posts.length < count,
+    });
+
+  } catch (err) {
+        console.log("5")
+    
+    console.log(err)
+    res.status(500).json({
+      msg: "server error",
+    });
+  }
+};
 const getPost=async (req,res)=>{
      const {postId}=req.params
     const post= await Post.findById(postId).populate('author', 'name profileImageURL')
