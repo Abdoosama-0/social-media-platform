@@ -22,7 +22,9 @@ const Page = () => {
 
     try {
       // login request
+        alert(`fetch  ${process.env.NEXT_PUBLIC_API_URL}`)
       const res = await fetch(
+
         `${process.env.NEXT_PUBLIC_API_URL}/auth/localLogin`,
         {
           method: "POST",

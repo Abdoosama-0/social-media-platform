@@ -22,7 +22,7 @@ const Posts = () => {
   ) => {
     try {
       setLoading(true);
-
+  alert(`fetch  ${process.env.NEXT_PUBLIC_API_URL}`)
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/posts?page=${pageNumber}`,
     {
