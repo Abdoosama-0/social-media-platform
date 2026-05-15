@@ -31,6 +31,7 @@ app.get('/',(req,res)=>{
 //===============================================================================
 app.use(cookieParser())
 const cors = require('cors');
+console.log("==================")
 console.log(process.env.FRONT_URL)
 app.use(
   cors({
