@@ -31,13 +31,13 @@ app.get('/',(req,res)=>{
 //===============================================================================
 app.use(cookieParser())
 const cors = require('cors');
-
-app.use(cors({
-     origin: (origin, callback) => {
-    callback(null, true); // السماح بأي origin
-  },
+console.log(process.env.FRONT_URL)
+app.use(
+  cors({
+    origin: process.env.FRONT_URL,
     credentials: true,
-  }));
+  })
+);
 
 
 

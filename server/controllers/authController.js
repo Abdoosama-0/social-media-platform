@@ -21,7 +21,14 @@ const localLogin = (req, res, next) => {
     const accessToken = jwt.sign(Payload, process.env.SECRET_TOKEN, { expiresIn: "1h" });
     const refreshToken = jwt.sign(Payload, process.env.SECRET_TOKEN);
     await redis.set(`refresh:${user._id.toString()}`, refreshToken);
-    res.cookie("access_token", accessToken, { httpOnly: true, secure: false, });
+    res.cookie("access_token", accessToken, { 
+      
+      httpOnly: true, secure: true,
+        sameSite: "none",
+
+
+
+     });
 
     return res.json({ msg: 'logged in successfully', userData: user, accessToken, refreshToken });
   })(req, res, next)
