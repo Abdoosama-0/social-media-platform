@@ -13,8 +13,17 @@ const nodemailer = require("nodemailer");
 
 const localLogin = (req, res, next) => {
   passport.authenticate('local', { session: false }, async (err, user, info) => {
-    if (err) return res.status(500).json({ message: "Server error", error: err })
-    if (!user) return res.status(401).json({ message: info?.message || "Invalid username or password" })
+    if (err) {
+      console.log(err || "Server error")
+      return res.status(500).json({ msg: `Server error ${err}`, error: err })
+      
+    }
+    if (!user) {
+            console.log(info?.message || "user not found")
+
+      return res.status(401).json({ msg: info?.message || "Invalid username or password" })
+    
+    }
     if (user.isBanded === true) { return res.status(401).json({ msg: "sorry, admin banded you" }) }
 
     const Payload = { userID: user._id.toString(), role: user.role }
