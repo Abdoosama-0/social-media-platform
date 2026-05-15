@@ -9,7 +9,7 @@ const Page = () => {
     const getMe = async () => {
       try {
         const res = await fetch(
-          "http://localhost:5000/users/me",
+          `${process.env.NEXT_PUBLIC_API_URL}/users/me`,
           {
             credentials: "include",
           }

@@ -24,7 +24,7 @@ const Posts = () => {
       setLoading(true);
 
       const res = await fetch(
-        `http://localhost:5000/posts?page=${pageNumber}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/posts?page=${pageNumber}`,
     {
         credentials: 'include'
     }

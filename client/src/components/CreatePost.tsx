@@ -32,7 +32,7 @@ const CreatePost = () => {
       }
 
       const res = await fetch(
-        "http://localhost:5000/posts",
+      `${process.env.NEXT_PUBLIC_API_URL}/posts`,
         {
           method: "POST",
           credentials: "include",

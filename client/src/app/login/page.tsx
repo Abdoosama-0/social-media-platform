@@ -23,7 +23,7 @@ const Page = () => {
     try {
       // login request
       const res = await fetch(
-        "http://localhost:5000/auth/localLogin",
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/localLogin`,
         {
           method: "POST",
           credentials: "include", // مهم جدًا للكوكيز
