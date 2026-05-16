@@ -8,7 +8,6 @@ const Page = () => {
   useEffect(() => {
     const getMe = async () => {
       try {
-        alert(`fetch  ${process.env.NEXT_PUBLIC_API_URL}`)
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/users/me`,
           {
@@ -32,7 +31,7 @@ const Page = () => {
 
   return (
     <div className="p-5">
-      {data ? (
+      {data && (
         <div className="flex flex-col gap-3">
 
           <img
@@ -79,9 +78,7 @@ const Page = () => {
 
 
         </div>
-      ) : (
-        <p>Loading...</p>
-      )}
+      ) }
     </div>
   );
 };

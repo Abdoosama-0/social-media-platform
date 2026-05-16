@@ -22,7 +22,6 @@ const Posts = () => {
   ) => {
     try {
       setLoading(true);
-  alert(`fetch  ${process.env.NEXT_PUBLIC_API_URL}`)
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/posts?page=${pageNumber}`,
     {
@@ -144,7 +143,8 @@ const Posts = () => {
           {/* user */}
           <div className="flex items-center gap-2 mb-3">
 
-            <img
+            <img onClick={()=> window.location.href =`/${                post.author._id
+}`}
               src={
                 post.author
                   .profileImageURL

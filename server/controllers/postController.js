@@ -77,12 +77,16 @@ const createPost =async (req,res)=>{
 }
 
 const getUserPosts= async(req,res)=>{
+    console.log("fetch")
     const {userId}=req.params
     const user=await User.findById(userId).populate('posts')
  if(!user){
         return res.status(404).json({msg:"user not found"})
     }
+    console.log("================")
     console.log(user.posts)
+    console.log("================")
+
     return res.status(200).json({msg:"success",allPosts:user.posts})
 }
 const getMyPosts= async(req,res)=>{
