@@ -115,7 +115,7 @@ router.post('/verifyOtp', verifyOtp)
  *       401:
  *         description: Invalid credentials
  */
-router.post('/localLogin', isLoggedIn, localLogin)
+router.post('/localLogin', localLogin)
 
 
 //==========================================================================
