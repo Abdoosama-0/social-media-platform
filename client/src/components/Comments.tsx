@@ -4,8 +4,8 @@ import React, { useEffect } from 'react'
 import { FaPlus, FaRegComment } from 'react-icons/fa'
 import CommentMenu from './CommentMenu'
 
-const Comments = ({ postId }: any) => {
-    const {id } = useUserData()
+const Comments = ({ postId, commentsCount }: any) => {
+    const { id } = useUserData()
     const [clicked, setClicked] = React.useState(false)
     const [commentText, setCommentText] = React.useState("")
     const [commentImage, setCommentImage] = React.useState<File | null>(null)
@@ -27,7 +27,6 @@ const Comments = ({ postId }: any) => {
                 alert("Error: " + data.msg);
                 return;
             }
-
             console.log(data);
             setComments(data.comments);
 
@@ -81,10 +80,17 @@ const Comments = ({ postId }: any) => {
 
     return (
         <div>
-            <FaRegComment onClick={() => {
+
+            <div onClick={() => {
                 setClicked(true)
                 getPostComments();
-            }} className='cursor-pointer' />
+            }} className='cursor-pointer flex items-center gap-1'>
+                <FaRegComment />
+                <span>{commentsCount} Comments</span>
+
+
+            </div>
+
             {clicked &&
                 <div
                     onClick={() => setClicked(false)}
@@ -128,7 +134,7 @@ const Comments = ({ postId }: any) => {
                                         <p className="text-sm">
                                             {comment.comment}
                                         </p>
-                                    
+
 
                                         {comment.userid._id === id && (
                                             <CommentMenu setComments={setComments} commentId={comment._id} comment={comment.comment} />

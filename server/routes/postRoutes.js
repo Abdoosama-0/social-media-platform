@@ -12,7 +12,7 @@ const {
   deletePost,
   deleteComment,
   updateComment,
-  getMyPosts,getPostComments
+  getMyPosts,getPostComments,getPostLikes
 } = require('../controllers/postController')
 
 const upload = require('../config/multer')
@@ -38,8 +38,9 @@ router.use(verifyToken)
  *         description: Posts retrieved successfully
  */
 router.get('/', getPosts)
-
+router.get('/likes/:postId', getPostLikes)
 router.get('/comments/:postId', getPostComments)
+
 //==========================================================================
 
 /**

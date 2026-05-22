@@ -3,40 +3,44 @@ const User=require('../models/User')
 //http://localhost:3000/posts/?page=1
 const getPosts = async (req, res) => {
   try {
-        console.log("1")
-
     const limit = 10;
 
     const page =
       parseInt(req.query.page) || 1;
 
     const skip = (page - 1) * limit;
-        console.log("2")
 
     const posts = await Post.find()
       .populate(
         "author",
         "name profileImageURL"
       )
-      .sort({ createdAt: -1 }) // الأحدث أولًا
+      .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
-        console.log("3")
+      .limit(limit)
+      .lean();
+
+    const postsWithCommentsCount =
+      posts.map((post) => ({
+        ...post,
+        commentsCount:
+          post.comments?.length || 0,
+      }));
 
     const count =
       await Post.countDocuments();
 
     res.json({
-      posts,
+      posts: postsWithCommentsCount,
       count,
       currentPage: page,
-      hasMore: skip + posts.length < count,
+      hasMore:
+        skip + posts.length < count,
     });
 
   } catch (err) {
-        console.log("5")
-    
-    console.log(err)
+    console.log(err);
+
     res.status(500).json({
       msg: "server error",
     });
@@ -133,26 +137,76 @@ const deletePost =async(req,res)=>{
     res.status(200).json({ msg: "Post deleted successfully", deletedPost: deletedPost });
 }
 //=========================================
-const Like=async(req,res)=>{
+const Like = async (req, res) => {
 
-    const {postId}=req.params
-    const post= await Post.findById(postId)
-    if(!post){
-        res.status(404).json({ message: "post not found" });
+  const { postId } = req.params;
+
+  const post = await Post.findById(postId);
+
+  if (!post) {
+    return res.status(404).json({
+      message: "post not found",
+    });
+  }
+
+  const userId = req.user.userID;
+
+  const alreadyLiked = post.likes.some(
+    (id) => id.toString() === userId
+  );
+
+  if (alreadyLiked) {
+    post.likes = post.likes.filter(
+      (id) => id.toString() !== userId
+    );
+  } else {
+    post.likes.push(userId);
+  }
+
+  post.likesCount = post.likes.length;
+
+  await post.save();
+
+  const updatedPost = await Post.findById(postId)
+    .populate(
+      "author",
+      "name profileImageURL"
+    )
+    .lean();
+
+  updatedPost.commentsCount =
+    updatedPost.comments?.length || 0;
+
+  res.status(200).json({
+    post: updatedPost,
+  });
+};
+ const getPostLikes = async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId)
+      .populate("likes", "name profileImageURL")
+      .select("likes");
+
+    if (!post) {
+      return res.status(404).json({
+        msg: "Post not found",
+      });
     }
 
-const userId=req.user.userID
-    if (post.likes.includes(userId)) {
-        post.likes = post.likes.filter(id => id.toString() !== userId);
-      post.likesCount=post.likes.length
-    }else{
-    post.likes.push(userId)
-    post.likesCount=post.likes.length
-    }
-    await post.save();
-    res.status(200).json({ post:post});
-    }
-
+    res.status(200).json({
+      likesCount: post.likes.length,
+      likes: post.likes,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      msg: "Server error",
+      error: error.message,
+    });
+  }
+};
 //==========================================
 const addComment =async(req,res)=>{
     const {postId}=req.params
@@ -248,7 +302,7 @@ const imageUrl=req.file?req.file.path:undefined
 
 }
 //=============================================
-module.exports={getPostComments,getPosts,createPost,Like,getPost,getUserPosts,addComment,updatePost,deletePost,deleteComment,updateComment,getMyPosts}
+module.exports={getPostLikes,getPostComments,getPosts,createPost,Like,getPost,getUserPosts,addComment,updatePost,deletePost,deleteComment,updateComment,getMyPosts}
 
 
 

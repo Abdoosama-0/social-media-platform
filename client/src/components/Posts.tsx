@@ -5,6 +5,8 @@ import React, {
   useState,
 } from "react";
 import Comments from "./Comments";
+import Like from "./Like";
+import Likes from "./Likes";
 
 const Posts = () => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -175,9 +177,15 @@ const Posts = () => {
             />
           )}
          
-          <div className="mt-3 flex items-center gap-4 justify-between">        
+          <div className="mt-3 flex items-center gap-4 ">        
+<div className="flex gap-2">
+  <Comments  postId={post._id} commentsCount={post.commentsCount} />
+          
+  </div>
+    <Like setPosts={setPosts} postId={post._id} />
 
-  <Comments comments={post.comments} postId={post._id} />
+<Likes post={post}  />
+  
   </div>
         </div>
       
