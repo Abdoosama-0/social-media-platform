@@ -165,7 +165,30 @@ const addComment =async(req,res)=>{
    res.status(200).json({msg:"Comment added successfully",post:post})
 }
 
+const getPostComments = async (req, res) => {
+  try {
+    const { postId } = req.params;
 
+    const post = await Post.findById(postId)
+      .populate("comments.userid", "username profileImageURL ")
+      .select("comments");
+
+    if (!post) {
+      return res.status(404).json({
+        msg: "post not found",
+      });
+    }
+
+    res.status(200).json({
+      comments: post.comments.reverse(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "server error",
+      error: error.message,
+    });
+  }
+};
 const deleteComment=async(req,res)=>{
 
     const {commentId}=req.params
@@ -225,7 +248,7 @@ const imageUrl=req.file?req.file.path:undefined
 
 }
 //=============================================
-module.exports={getPosts,createPost,Like,getPost,getUserPosts,addComment,updatePost,deletePost,deleteComment,updateComment,getMyPosts}
+module.exports={getPostComments,getPosts,createPost,Like,getPost,getUserPosts,addComment,updatePost,deletePost,deleteComment,updateComment,getMyPosts}
 
 
 

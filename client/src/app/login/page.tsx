@@ -46,11 +46,13 @@ const Page = () => {
       }
       alert("success")
 
+  
+
       // خزّن بيانات المستخدم في zustand
       setUser({
         userName: data.userData.username,
         email: data.userData.email,
-        id: data.userData.id,
+        id: data.userData._id,
         photo: data.userData.profileImageURL,
       });
 

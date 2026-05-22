@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import Comments from "./Comments";
 
 const Posts = () => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -139,6 +140,7 @@ const Posts = () => {
           key={post._id}
           className="border p-4 rounded"
         >
+          post._id: {post._id}
 
           {/* user */}
           <div className="flex items-center gap-2 mb-3">
@@ -172,8 +174,13 @@ const Posts = () => {
               className="rounded max-w-[500px]"
             />
           )}
+         
+          <div className="mt-3 flex items-center gap-4 justify-between">        
 
+  <Comments comments={post.comments} postId={post._id} />
+  </div>
         </div>
+      
       ))}
 
       {loading && (
