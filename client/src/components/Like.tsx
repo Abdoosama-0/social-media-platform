@@ -1,7 +1,7 @@
 import React from 'react'
 import { AiFillLike } from 'react-icons/ai'
 
-const Like = ({setPosts,postId}:any) => {
+const Like = ({setPosts,postId,setPost}:any) => {
 
 const handleLike = async (postId: string) => {
   try {
@@ -19,7 +19,10 @@ const handleLike = async (postId: string) => {
       alert(data.msg);
       return;
     }
-    
+    if(setPost) {
+      setPost(data.post)
+      return
+    }
 
     setPosts((prev: any) =>
       prev.map((post: any) =>

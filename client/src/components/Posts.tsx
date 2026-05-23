@@ -7,6 +7,7 @@ import React, {
 import Comments from "./Comments";
 import Like from "./Like";
 import Likes from "./Likes";
+import Post from "./Post";
 
 const Posts = () => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -138,56 +139,7 @@ const Posts = () => {
     <div className="p-5 flex flex-col gap-5">
 
       {posts.map((post) => (
-        <div
-          key={post._id}
-          className="border p-4 rounded"
-        >
-          post._id: {post._id}
-
-          {/* user */}
-          <div className="flex items-center gap-2 mb-3">
-
-            <img onClick={()=> window.location.href =`/${                post.author._id
-}`}
-              src={
-                post.author
-                  .profileImageURL
-              }
-              alt="profile"
-              className="w-10 h-10 rounded-full"
-            />
-
-            <p className="font-bold">
-              {post.author.name}
-            </p>
-
-          </div>
-
-          {/* title */}
-          <h2 className="mb-3">
-            {post.title}
-          </h2>
-
-          {/* first image */}
-          {post.images.length > 0 && (
-            <img
-              src={post.images[0]}
-              alt="post"
-              className="rounded max-w-[500px]"
-            />
-          )}
-         
-          <div className="mt-3 flex items-center gap-4 ">        
-<div className="flex gap-2">
-  <Comments  postId={post._id} commentsCount={post.commentsCount} />
-          
-  </div>
-    <Like setPosts={setPosts} postId={post._id} />
-
-<Likes post={post}  />
-  
-  </div>
-        </div>
+      <Post key={post._id} post={post} setPosts={setPosts} />
       
       ))}
 

@@ -1,10 +1,12 @@
 "use client";
 
+import Post from "@/components/Post";
+import Profile from "@/components/profile";
 import React, { useEffect, useState } from "react";
 
 const Page = () => {
   const [data, setData] = useState<any>(null);
-
+const [posts, setPosts] = useState<any[]>([]);
   useEffect(() => {
     const getMe = async () => {
       try {
@@ -20,6 +22,7 @@ const Page = () => {
         const result = await res.json();
 
         setData(result);
+        setPosts(result.user.posts);
 
       } catch (err) {
         console.log(err);
@@ -30,56 +33,8 @@ const Page = () => {
   }, []);
 
   return (
-    <div className="p-5">
-      {data && (
-        <div className="flex flex-col gap-3">
-
-          <img
-            src={data.user.profileImageURL}
-            alt="profile"
-            className="w-24 h-24 rounded-full"
-          />
-
-          <h1>Name: {data.user.name}</h1>
-
-          <p>Username: {data.user.username}</p>
-
-          <p>Email: {data.user.email}</p>
-
-          <p>Role: {data.user.role}</p>
-
-          <hr />
-
-          <p>Posts Count: {data.postsCount}</p>
-
-          <p>Followers Count: {data.followersCount}</p>
-
-          <p>Following Count: {data.followingCount}</p>
-          <p>posts:</p>
-
-          {data.posts.map((post: any) => (
-  <div
-    key={post._id}
-    className="border p-4 rounded mb-4"
-  >
-
-
-    {/* أول صورة فقط */}
-    <img
-      src={post.images[0]}
-      alt="post"
-      className="w-[300px] h-[300px] object-cover rounded mt-2"
-    />
-
-  </div>
-))}
-
-
-
-
-        </div>
-      ) }
-    </div>
+    <Profile data={data} posts={posts} setPosts={setPosts} />
+  
   );
 };
 

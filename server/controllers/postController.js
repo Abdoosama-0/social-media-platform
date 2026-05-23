@@ -46,14 +46,36 @@ const getPosts = async (req, res) => {
     });
   }
 };
-const getPost=async (req,res)=>{
-     const {postId}=req.params
-    const post= await Post.findById(postId).populate('author', 'name profileImageURL')
-    if(!post){
-        res.status(404).json({ message: "post not found" });
+const getPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId)
+      .populate("author", "name profileImageURL")
+      .lean();
+
+    if (!post) {
+      return res.status(404).json({
+        msg: "post not found",
+      });
     }
-    return res.json({post:post})
-}
+
+    const formattedPost = {
+      ...post,
+      commentsCount: post.comments?.length || 0,
+    };
+
+    return res.status(200).json({
+
+      msg: "post retrieved successfully",
+      post: formattedPost,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      msg:error,
+    });
+  }
+};
 
 const createPost =async (req,res)=>{
     const {title}=req.body
@@ -80,19 +102,43 @@ const createPost =async (req,res)=>{
 
 }
 
-const getUserPosts= async(req,res)=>{
-    console.log("fetch")
-    const {userId}=req.params
-    const user=await User.findById(userId).populate('posts')
- if(!user){
-        return res.status(404).json({msg:"user not found"})
-    }
-    console.log("================")
-    console.log(user.posts)
-    console.log("================")
+ const getUserPosts = async (req, res) => {
+  try {
+    const { userId } = req.params;
 
-    return res.status(200).json({msg:"success",allPosts:user.posts})
-}
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        msg: "User not found",
+      });
+    }
+
+    const posts = await Post.find({ author: userId })
+      .populate("author", "name profileImageURL")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const formattedPosts = posts.map((post) => ({
+      ...post,
+      commentsCount: post.comments?.length || 0,
+    }));
+
+    res.status(200).json({
+      posts: formattedPosts,
+      count: formattedPosts.length,
+      currentPage: 1,
+      hasMore: false,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Server error",
+      error: error.msg,
+    });
+  }
+};
+
+
 const getMyPosts= async(req,res)=>{
     const userId=req.user.userID
     const user=await User.findById(userId).populate('posts')
@@ -145,7 +191,7 @@ const Like = async (req, res) => {
 
   if (!post) {
     return res.status(404).json({
-      message: "post not found",
+      msg: "post not found",
     });
   }
 
@@ -203,7 +249,7 @@ const Like = async (req, res) => {
     console.error(error);
     res.status(500).json({
       msg: "Server error",
-      error: error.message,
+      error: error.msg,
     });
   }
 };
@@ -239,7 +285,7 @@ const getPostComments = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       msg: "server error",
-      error: error.message,
+      error: error.msg,
     });
   }
 };

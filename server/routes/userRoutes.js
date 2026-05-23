@@ -5,7 +5,8 @@ const {
   getMyData,
   updateUserData,
   deleteUser,
-  follow
+  follow,
+  getUserData
 } = require('../controllers/userController')
 
 //==============================================================
@@ -32,6 +33,7 @@ router.use(verifyToken)
  */
 router.get('/me', getMyData)
 
+router.get('/:userId', getUserData)
 
 //==============================================================
 

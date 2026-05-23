@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { FaPlus, FaRegComment } from 'react-icons/fa'
 import CommentMenu from './CommentMenu'
 
-const Comments = ({ postId, commentsCount }: any) => {
+const Comments = ({ postId, commentsCount ,setPost}: any) => {
     const { id } = useUserData()
     const [clicked, setClicked] = React.useState(false)
     const [commentText, setCommentText] = React.useState("")
@@ -28,6 +28,7 @@ const Comments = ({ postId, commentsCount }: any) => {
                 return;
             }
             console.log(data);
+       
             setComments(data.comments);
 
         } catch (error) {
@@ -62,13 +63,20 @@ const Comments = ({ postId, commentsCount }: any) => {
                 setLoading(false)
                 return;
             }
-            alert("Comment added successfully");
             getPostComments();
             setCommentText("");
             setCommentImage(null);
             setPreviewImage(null);
             console.log(data);
             setLoading(false)
+            if(setPost) {
+                setPost((prev: any) => {
+                    return {
+                        ...prev,
+                        commentsCount: prev.commentsCount + 1
+                    }
+                })
+            }
         } catch (error) {
             setLoading(false)
             console.log(error);
@@ -128,9 +136,9 @@ const Comments = ({ postId, commentsCount }: any) => {
                                 comments.map((comment: any) => (
                                     <div
                                         key={comment._id}
-                                        className="bg-gray-100 rounded-xl p-3"
+                                        className="bg-gray-100 rounded-xl p-3 "
                                     >
-
+                                        <div className="flex items-center gap-2 justify-between">
                                         <p className="text-sm">
                                             {comment.comment}
                                         </p>
@@ -139,6 +147,7 @@ const Comments = ({ postId, commentsCount }: any) => {
                                         {comment.userid._id === id && (
                                             <CommentMenu setComments={setComments} commentId={comment._id} comment={comment.comment} />
                                         )}
+</div>
                                         {comment.commentImage && (
                                             <img
                                                 src={comment.commentImage}

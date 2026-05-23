@@ -92,8 +92,8 @@ setClicked(false);
 
   
     {clicked && (
-      <div className="absolute top-0 left-0 bg-white shadow-lg rounded-lg p-2 z-30">
-        <p  className='cursor-pointer' onClick={()=>setClicked(false)}>x</p>
+      <div className="absolute top-0 right-0 bg-white shadow-lg rounded-lg p-2 z-30">
+        <p  className='cursor-pointer absolute top-0 right-0 my-1 mx-2' onClick={()=>setClicked(false)}>x</p>
         <button onClick={()=> setEditMode(true)} className="block px-4 py-2 hover:bg-gray-200 cursor-pointer">Edit</button>
         <button onClick={()=> handleDelete(commentId)} className="block px-4 py-2 hover:bg-gray-200 cursor-pointer">Delete</button>
       </div>

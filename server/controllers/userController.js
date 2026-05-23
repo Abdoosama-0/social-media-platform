@@ -2,19 +2,42 @@ require('dotenv').config()
 const redis=require('../config/redis')
 const User=require('../models/User')
 const {isValidEmail} = require('../utility/validate')
-const getMyData= async(req,res)=>{
-    const user =await User.findById(req.user.userID).populate('posts', 'title images createdAt author')
-    if(!user){ return res.status(404).json({msg:"there is no user"})}
-    
-   return res.status(200).json({
-    user : user,
-  posts: user.posts,                        
-  postsCount: user.posts.length,           
-  followersCount: user.followers.length,     
-  followingCount: user.following.length    ,
- 
-});
-}
+const getMyData = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userID)
+      .populate({
+        path: "posts",
+        populate: {
+          path: "author",
+          select: "name profileImageURL",
+        },
+      })
+      .lean();
+
+    if (!user) {
+      return res.status(404).json({
+        msg: "there is no user",
+      });
+    }
+
+    const formattedPosts = user.posts.map((post) => ({
+      ...post,
+      commentsCount: post.comments?.length || 0,
+    }));
+
+    return res.status(200).json({
+      user,
+      posts: formattedPosts,
+      postsCount: formattedPosts.length,
+      followersCount: user.followers.length,
+      followingCount: user.following.length,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 const updateUserData=async(req,res)=>{
     let {name,username , email ,profileImageURL} =req.body
@@ -84,6 +107,51 @@ const follow = async(req,res)=>{
     
 
 }
+const getUserData = async (req, res) => {
+  try {
+        const { userId } = req.params;
+
+    const user = await User.findById(userId)
+      .populate({
+        path: "posts",
+        populate: {
+          path: "author",
+          select: "name profileImageURL",
+        },
+      })
+      .lean();
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const formattedPosts = (user.posts || []).map((post) => ({
+      ...post,
+      commentsCount: post.comments?.length || 0,
+    }));
+
+    return res.status(200).json({
+      user: {
+        ...user,
+        posts: formattedPosts,
+      },
+
+      posts: formattedPosts,
+
+      postsCount: formattedPosts.length,
+
+      followersCount: user.followers?.length || 0,
+
+      followingCount: user.following?.length || 0,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 
-module.exports={getMyData,updateUserData,deleteUser,follow}
+module.exports={getMyData,updateUserData,deleteUser,follow,getUserData}
