@@ -1,5 +1,7 @@
 import React from 'react'
 import Post from './Post'
+import Following from './following';
+import Followers from './followers';
 
 const profile = ({ data, posts, setPosts }: any) => {
         const [preview, setPreview] = React.useState("");
@@ -31,10 +33,11 @@ const profile = ({ data, posts, setPosts }: any) => {
           <hr />
 
           <p>Posts Count: {data.postsCount}</p>
-
-          <p>Followers Count: {data.followersCount}</p>
-
-          <p>Following Count: {data.followingCount}</p>
+            <div className='flex gap-2'>
+          <p>Followers Count: {data.followersCount}</p><Followers id = {data.user._id} /></div>
+<div  className='flex gap-2'>
+          <p>Following Count: {data.followingCount}</p> <Following id = {data.user._id} />
+          </div>
           <p>posts:</p>
            {preview && (
       <div

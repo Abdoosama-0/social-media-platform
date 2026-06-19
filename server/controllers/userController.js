@@ -20,11 +20,12 @@ const getMyData = async (req, res) => {
       });
     }
 
-    const formattedPosts = user.posts.map((post) => ({
-      ...post,
-      commentsCount: post.comments?.length || 0,
-    }));
-
+const formattedPosts = user.posts
+  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  .map((post) => ({
+    ...post,
+    commentsCount: post.comments?.length || 0,
+  }));
     return res.status(200).json({
       user,
       posts: formattedPosts,
@@ -76,37 +77,74 @@ const deleteUser=async(req,res)=>{
     await redis.del(`refresh:${req.user.userID}`);
     return res.status(200).json({msg:"user deleted successfully",user:user})
 }
+const follow = async (req, res) => {
+  const userID = req.params.userId;
 
-const follow = async(req,res)=>{
-    const userID =req.params.userId
+  if (!userID) {
+    return res.status(400).json({
+      msg: "Please provide a userID to follow",
+    });
+  }
 
-    if(!userID){
-        return res.status(400).json({msg:"Please provide a userID to follow"})
-    }
+  const user = await User.findById(req.user.userID);
 
-    const user = await User.findById(req.user.userID);
-    if (!user) {
-        return res.status(404).json({ msg: "User not found" });
-    }
-    const userToFollow = await User.findById(userID);
-    if (!userToFollow) {
-        return res.status(404).json({ msg: "User to follow not found" });
-    } 
-    if (user.following.includes(userID)) {
-    user.following = user.following.filter(id => id.toString() !== userID);
-     await user.save();
-    return res.status(200).json({ msg: "Unfollowed successfully", userToFollow }
+  if (!user) {
+    return res.status(404).json({
+      msg: "User not found",
+    });
+  }
 
+  const userToFollow = await User.findById(userID);
+
+  if (!userToFollow) {
+    return res.status(404).json({
+      msg: "User to follow not found",
+    });
+  }
+
+  // منع متابعة النفس
+  if (user._id.toString() === userID) {
+    return res.status(400).json({
+      msg: "You cannot follow yourself",
+    });
+  }
+
+  const isFollowing = user.following.some(
+    (id) => id.toString() === userID
+  );
+
+  if (isFollowing) {
+    // unfollow
+    user.following = user.following.filter(
+      (id) => id.toString() !== userID
     );
-    }
-    else {
-    user.following.push(userID);
-    await user.save();
-    return res.status(200).json({ msg: "Followed successfully", userToFollow });
-    }
-    
 
-}
+    userToFollow.followers =
+      userToFollow.followers.filter(
+        (id) => id.toString() !== user._id.toString()
+      );
+
+    await user.save();
+    await userToFollow.save();
+
+    return res.status(200).json({
+      msg: "Unfollowed successfully",
+      isFollowing: false,
+    });
+  }
+
+  // follow
+  user.following.push(userID);
+  userToFollow.followers.push(user._id);
+
+  await user.save();
+  await userToFollow.save();
+
+  return res.status(200).json({
+    msg: "Followed successfully",
+    isFollowing: true,
+  });
+};
 const getUserData = async (req, res) => {
   try {
         const { userId } = req.params;
@@ -127,10 +165,12 @@ const getUserData = async (req, res) => {
       });
     }
 
-    const formattedPosts = (user.posts || []).map((post) => ({
-      ...post,
-      commentsCount: post.comments?.length || 0,
-    }));
+const formattedPosts = user.posts
+  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  .map((post) => ({
+    ...post,
+    commentsCount: post.comments?.length || 0,
+  }));
 
     return res.status(200).json({
       user: {
@@ -154,21 +194,16 @@ const getUserData = async (req, res) => {
 };
 
 
+
 const getUserFollowers = async (req, res) => {
   try {
     const { userId } = req.params;
-
-    // اليوزر اللي عامل request
-    const currentUserId = req.user.userID;
-    console.log("Current User ID:", currentUserId);
 
     const user = await User.findById(userId)
       .populate({
         path: "followers",
         select: "_id profileImageURL username",
-        options: {
-          limit: 1000,
-        },
+        options: { limit: 1000 },
       });
 
     if (!user) {
@@ -177,23 +212,41 @@ const getUserFollowers = async (req, res) => {
       });
     }
 
-    const followers = user.followers.map((follower) => ({
-      _id: follower._id,
-      profileImageURL: follower.profileImageURL,
-      username: follower.username,
-      following: user.following.some(
-        (id) => id.toString() === follower._id.toString()
-      ),
-    }));
-
     return res.status(200).json({
-      followers,
+      followers: user.followers,
     });
+
   } catch (error) {
     return res.status(500).json({
       message: error.message,
     });
   }
 };
+const getUserFollowing = async (req, res) => {
+  try {
+    const { userId } = req.params;
 
-module.exports={getMyData,updateUserData,deleteUser,follow,getUserData,getUserFollowers}
+    const user = await User.findById(userId)
+      .populate({
+        path: "following",
+        select: "_id profileImageURL username",
+        options: { limit: 1000 },
+      });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      following: user.following,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+module.exports={getMyData,updateUserData,deleteUser,follow,getUserData,getUserFollowers,getUserFollowing}

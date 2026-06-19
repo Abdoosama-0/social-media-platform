@@ -3,8 +3,8 @@ const Schema = mongoose.Schema
 
 const commentSchema = new Schema({
     userid: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    comment:{type:String},
-    commentImage:{type:String},
+    comment: { type: String },
+    commentImage: { type: String },
 }, { timestamps: true });
 
 
@@ -12,17 +12,22 @@ const postSchema = new Schema({
 
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
-    title: {type: String},
+    title: { type: String },
 
     images: [{ type: String }],
+
+    videos: {
+        type: [{ type: String }],
+        default: [],
+    },
 
     comments: [commentSchema],
 
     createdAt: { type: Date, default: Date.now },
 
-    likes:[{type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 
-    likesCount:{type:Number,default:0}
+    likesCount: { type: Number, default: 0 }
 
 }, { timestamps: true });
 

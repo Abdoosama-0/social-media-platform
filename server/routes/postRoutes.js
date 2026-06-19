@@ -87,7 +87,12 @@ router.get('/My', getMyPosts)
  *       201:
  *         description: Post created successfully
  */
-router.post('/', upload.array("images", 5), createPost)
+router.post('/', 
+  upload.fields([
+  { name: "images", maxCount: 5 },
+  { name: "videos", maxCount: 5 },
+])
+, createPost)
 
 
 //==========================================================================

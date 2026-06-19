@@ -91,30 +91,40 @@ const getPost = async (req, res) => {
   }
 };
 
-const createPost =async (req,res)=>{
-    const {title}=req.body
-    authorId=req.user.userID
-    //===========================================================================
-    let images = []; 
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({ error: "No images uploaded" });
-        }
-       images = req.files.map((file) => file.path);
- //===========================================================================
+const createPost = async (req, res) => {
+  try {
+    const { title } = req.body;
+    const authorId = req.user.userID;
 
-    const newPost= new Post({
-        title,
-        author:authorId,
-        images
-    })
-    await newPost.save()
-    const user=await User.findById(authorId)
-    user.posts.push(newPost._id)
+    let images = [];
+    let videos = [];
+
+    if (req.files?.images) {
+      images = req.files.images.map((file) => file.path);
+    }
+
+    if (req.files?.videos) {
+      videos = req.files.videos.map((file) => file.path);
+    }
+
+    const newPost = new Post({
+      title,
+      author: authorId,
+      images,
+      videos,
+    });
+
+    await newPost.save();
+
+    const user = await User.findById(authorId);
+    user.posts.push(newPost._id);
     await user.save();
-    console.log(newPost)
-    res.json({post:newPost})
 
-}
+    return res.json({ post: newPost });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 
  const getUserPosts = async (req, res) => {
   try {

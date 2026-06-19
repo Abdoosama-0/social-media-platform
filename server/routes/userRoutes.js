@@ -7,7 +7,9 @@ const {
   deleteUser,
   follow,
   getUserData,
-  getUserFollowers
+  getUserFollowers,
+  getUserFollowing
+
 } = require('../controllers/userController')
 
 
@@ -30,6 +32,9 @@ router.patch(
 router.delete('/me', deleteUser)
 router.post('/:userId/follow', follow)
 router.get('/:userId/followers', getUserFollowers)
+
+router.get('/:userId/following', getUserFollowing)
+
 
 
 //==========================================================================
