@@ -154,4 +154,46 @@ const getUserData = async (req, res) => {
 };
 
 
-module.exports={getMyData,updateUserData,deleteUser,follow,getUserData}
+const getUserFollowers = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // اليوزر اللي عامل request
+    const currentUserId = req.user.userID;
+    console.log("Current User ID:", currentUserId);
+
+    const user = await User.findById(userId)
+      .populate({
+        path: "followers",
+        select: "_id profileImageURL username",
+        options: {
+          limit: 1000,
+        },
+      });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const followers = user.followers.map((follower) => ({
+      _id: follower._id,
+      profileImageURL: follower.profileImageURL,
+      username: follower.username,
+      following: user.following.some(
+        (id) => id.toString() === follower._id.toString()
+      ),
+    }));
+
+    return res.status(200).json({
+      followers,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+module.exports={getMyData,updateUserData,deleteUser,follow,getUserData,getUserFollowers}

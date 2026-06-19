@@ -20,6 +20,7 @@ const profile = ({ data, posts, setPosts }: any) => {
           />
 
           <h1>Name: {data.user.name}</h1>
+          <h1>id : {data.user._id}</h1>
 
           <p>Username: {data.user.username}</p>
 

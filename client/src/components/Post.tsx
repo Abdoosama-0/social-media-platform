@@ -21,6 +21,7 @@ type Comment = {
 };
 
 type PostProps = {
+    isFollowingAuthor: boolean;
     _id: string;
     author: Author;
     title: string;
@@ -41,16 +42,52 @@ type Props = {
 const Post = ({
     post, setPosts
 }: Props) => {
+const [isFollowing,setIsFollowing] = React.useState(post.isFollowingAuthor);
+const handleFollowToggle = async (userId: any) => {
+  
+  try {
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/follow`,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+    // تحديث UI مباشرة
+    setPosts?.((prev) =>
+      prev.map((p) =>
+        p.author._id === userId
+          ? {
+              ...p,
+              isFollowingAuthor: !isFollowing,
+            }
+          : p
+      )
+      
+    );
+    setIsFollowing(!isFollowing)
+  } catch (error) {
+    console.log(error);
+  }
+};
 
     const [preview, setPreview] = React.useState("");
+    console.log("post", post) 
     return (
      <div
   key={post._id}
   className="border w-fit p-4 rounded cursor-pointer"
   onClick={() => {window.location.href = `/posts/${post._id}`}}
 >
-{post._id }
+  <h1 className='cursor-default' onClick={(e)=>{e.stopPropagation()}}>{post._id }</h1>
+
   {/* user */}
+  <div  className="flex items-center gap-1 mb-3 w-fit border p-3 rounded">   
   <Link
     href={`/${post.author._id}`}
     className="flex items-center gap-1 mb-3 w-fit border p-3 rounded"
@@ -65,10 +102,19 @@ setPreview(post.author.profileImageURL);
   }}
     />
 
+    <button  onClick={(e) => {e.preventDefault() , e.stopPropagation() ,handleFollowToggle(post.author._id)}} className='text-sm text-gray-500'>
+
+
+{isFollowing ? "Unfollow" : "Follow"}
+  </button>
+      </Link>
+
     <p className="font-bold">
       {post.author.name}
     </p>
-  </Link>
+      <h1 className='cursor-default' onClick={(e)=>{e.stopPropagation()}}>{post.author._id }</h1>
+
+ </div>
 
   {/* post content */}
   
@@ -80,10 +126,11 @@ setPreview(post.author.profileImageURL);
 
     {post.images.length > 0 && (
       <img
+   
         src={post.images[0]}
         alt="post"
         className="rounded max-w-[500px] cursor-zoom-in"
-        onClick={() => setPreview(post.images[0])}
+        onClick={(e) =>{ e.stopPropagation() ,setPreview(post.images[0]) }}
 
       />
     )}
@@ -91,13 +138,14 @@ setPreview(post.author.profileImageURL);
     {/* image preview */}
     {preview && (
       <div
-        className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-        onClick={() => setPreview("")}
+        className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 cursor-default"
+        onClick={(e) => {setPreview(""), e.stopPropagation()}}
       >
         <img
+        onClick={(e) => { e.stopPropagation()}}
             src={preview}
             alt="preview"
-            className="max-h-[90vh] max-w-[90vw] rounded"
+            className="max-h-[90vh] max-w-[90vw] rounded cursor-default"
         />
       </div>
     )}

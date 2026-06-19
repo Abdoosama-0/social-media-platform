@@ -139,6 +139,7 @@ const Posts = () => {
     <div className="p-5 flex flex-col gap-5">
 
       {posts.map((post) => (
+        
       <Post key={post._id} post={post} setPosts={setPosts} />
       
       ))}

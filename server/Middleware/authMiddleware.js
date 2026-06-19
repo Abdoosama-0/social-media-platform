@@ -45,7 +45,7 @@ const user = await User.findById(decodedPayload.userID);
             return res.status(403).json({ msg: "You have been blocked. Please contact support." });
         }
 //====================================================================================
-
+//req.user.userID
         req.user = decodedPayload;
     
         return next();

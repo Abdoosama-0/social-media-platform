@@ -100,13 +100,14 @@ setPreview(post.author.profileImageURL);
     {/* image preview */}
     {preview && (
       <div
-        className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-        onClick={() => setPreview("")}
+        className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 cursor-default"
+        onClick={(e) => {setPreview(""), e.stopPropagation()}}
       >
         <img
+          onClick={(e) => { e.stopPropagation()}}
             src={preview}
             alt="preview"
-            className="max-h-[90vh] max-w-[90vw] rounded"
+            className="max-h-[90vh] max-w-[90vw] rounded cursor-default"
         />
       </div>
     )}

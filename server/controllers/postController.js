@@ -5,10 +5,21 @@ const getPosts = async (req, res) => {
   try {
     const limit = 10;
 
-    const page =
-      parseInt(req.query.page) || 1;
-
+    const page = parseInt(req.query.page) || 1;
     const skip = (page - 1) * limit;
+    const currentUser = await User.findById(req.user.userID)
+      .select("following")
+      .lean();
+      if (!currentUser) {
+        return res.status(404).json({
+          msg: "User not found",
+          
+        });
+      }
+
+    const followingSet = new Set(
+      currentUser.following.map(id => id.toString())
+    );
 
     const posts = await Post.find()
       .populate(
@@ -20,12 +31,15 @@ const getPosts = async (req, res) => {
       .limit(limit)
       .lean();
 
-    const postsWithCommentsCount =
-      posts.map((post) => ({
-        ...post,
-        commentsCount:
-          post.comments?.length || 0,
-      }));
+    const postsWithCommentsCount = posts.map((post) => ({
+      ...post,
+      commentsCount: post.comments?.length || 0,
+
+      // هل المستخدم الحالي متابع صاحب البوست؟
+      isFollowingAuthor: followingSet.has(
+        post.author._id.toString()
+      ),
+    }));
 
     const count =
       await Post.countDocuments();
