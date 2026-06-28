@@ -10,8 +10,7 @@ import Likes from "./Likes";
 import Post from "./Post";
 
 const Posts = () => {
-  const [posts, setPosts] = useState<any[]>([]);
-
+const [posts, setPosts] = useState<any[]>([]);
   const [page, setPage] = useState(1);
 
   const [hasMore, setHasMore] =
@@ -138,7 +137,10 @@ const Posts = () => {
   return (
     <div className="p-5 flex flex-col gap-5">
 
-      {posts.map((post) => (
+      {
+
+      
+      posts.map((post) => (
         
       <Post key={post._id} post={post} setPosts={setPosts} />
       

@@ -14,12 +14,23 @@ const postSchema = new Schema({
 
     title: { type: String },
 
-    images: [{ type: String }],
-
-    videos: {
-        type: [{ type: String }],
-        default: [],
+ media: [
+  {
+    type: {
+      type: String,
+      enum: ["image", "video"],
+      required: true,
     },
+    url: {
+      type: String,
+      required: true,
+    },
+    order: {
+      type: Number,
+      required: true,
+    },
+  },
+],
 
     comments: [commentSchema],
 

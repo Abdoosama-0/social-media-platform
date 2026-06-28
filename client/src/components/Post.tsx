@@ -5,35 +5,27 @@ import Comments from "./Comments";
 import Link from "next/dist/client/link";
 import { formatPostDate } from "./formatPostDate";
 import { useUserData } from "@/store/userData";
-
-type Author = {
-  _id: string;
-  name: string;
-  profileImageURL: string;
-};
-
-type Comment = {
-  _id: string;
-  userid: string;
-  comment: string;
-  commentImage?: string;
-  createdAt: string;
-  updatedAt: string;
+type Media = {
+  type: "image" | "video";
+  url: string;
+  order: number;
 };
 
 type PostProps = {
   isFollowingAuthor: boolean;
   _id: string;
-  author: Author;
+  author: {
+    _id: string;
+    name: string;
+    profileImageURL: string;
+  };
   title: string;
-  images: string[];
+  media: Media[];
   likes: string[];
   likesCount: number;
-  comments: Comment[];
+  comments: any[];
   commentsCount: number;
   createdAt: string;
-  updatedAt: string;
-  __v: number;
 };
 
 type Props = {
@@ -41,25 +33,28 @@ type Props = {
   setPosts?: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
+
 const Post = ({ post, setPosts }: Props) => {
   const { id } = useUserData.getState();
 
   const [preview, setPreview] = React.useState("");
-  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+ // sort media
+  const sortedMedia = [...(post.media || [])].sort(
+    (a, b) => a.order - b.order
+  );
 
-  // NEXT IMAGE
-  const nextImage = (e: any) => {
+  const next = (e: any) => {
     e.stopPropagation();
-    setCurrentImageIndex((prev) =>
-      prev === post.images.length - 1 ? 0 : prev + 1
+    setCurrentIndex((prev) =>
+      prev === sortedMedia.length - 1 ? 0 : prev + 1
     );
   };
 
-  // PREVIOUS IMAGE
-  const prevImage = (e: any) => {
+  const prev = (e: any) => {
     e.stopPropagation();
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? post.images.length - 1 : prev - 1
+    setCurrentIndex((prev) =>
+      prev === 0 ? sortedMedia.length - 1 : prev - 1
     );
   };
 
@@ -146,84 +141,70 @@ const Post = ({ post, setPosts }: Props) => {
       <p>{formatPostDate(post.createdAt)}</p>
 
       <h2 className="mb-3">{post.title}</h2>
+{/* MEDIA SLIDER */}
+      {sortedMedia.length > 0 && (
+        <div className="relative w-[600px] h-[600px]">
+          {sortedMedia[currentIndex].type === "image" ? (
+            <img
+              src={sortedMedia[currentIndex].url}
+              className="w-full h-full object-cover rounded"
+              onClick={(e) => {
+                e.stopPropagation();
+                setPreview(sortedMedia[currentIndex].url);
+              }}
+            />
+          ) : (
+            <video
+              src={sortedMedia[currentIndex].url}
+              controls
+              className="w-full h-full object-cover rounded"
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
 
-      {/* IMAGES SLIDER */}
-      {post.images.length > 0 && (
-              //===================image=================
-             
-          <div className="relative w-[600px] h-[600px]">
-  <img
-    src={post.images[currentImageIndex]}
-    alt="post"
-    className="w-full h-full object-cover rounded cursor-zoom-in"
-    onClick={(e) => {
-              e.stopPropagation();
-              setPreview(post.images[currentImageIndex]);
-            }}
-  />
+          {/* Prev */}
+          {sortedMedia.length > 1 && (
+            <button
+              onClick={prev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white px-2 py-1 rounded"
+            >
+              ‹
+            </button>
+          )}
 
-  {/* Prev */}
-  {post.images.length > 1 && (
-    <button
-      onClick={prevImage}
-      className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white px-2 py-1 rounded"
-    >
-      ‹
-    </button>
-  )}
+          {/* Next */}
+          {sortedMedia.length > 1 && (
+            <button
+              onClick={next}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white px-2 py-1 rounded"
+            >
+              ›
+            </button>
+          )}
 
-  {/* Next */}
-  {post.images.length > 1 && (
-    <button
-      onClick={nextImage}
-      className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white px-2 py-1 rounded"
-    >
-      ›
-    </button>
-  )}
-
-  {/* Counter */}
-  {post.images.length > 1 && (
-    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-2 rounded">
-      {currentImageIndex + 1} / {post.images.length}
-    </div>
-  )}
-</div>
-
+          {/* Counter */}
+          {sortedMedia.length > 1 && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-sm px-2 rounded">
+              {currentIndex + 1} / {sortedMedia.length}
+            </div>
+          )}
+        </div>
       )}
 
-      {/* IMAGE PREVIEW */}
+      {/* PREVIEW */}
       {preview && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 cursor-default"
-          onClick={(e) => {
-            setPreview("");
-            e.stopPropagation();
-          }}
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={() => setPreview("")}
         >
           <img
-            onClick={(e) => e.stopPropagation()}
             src={preview}
-            alt="preview"
-            className="max-h-[90vh] max-w-[90vw] rounded cursor-default"
+            className="max-h-[90vh] max-w-[90vw]"
+            onClick={(e) => e.stopPropagation()}
           />
         </div>
       )}
-
-      {/* OPTIONS */}
-      <div className="mt-3 flex items-center gap-2">
-        <div className="flex gap-1">
-          <Like setPosts={setPosts} postId={post._id} />
-          <Likes post={post} />
-        </div>
-
-        <div className="flex gap-2">
-          <Comments
-            postId={post._id}
-            commentsCount={post.commentsCount}
-          />
-        </div>
-      </div>
+     
     </div>
   );
 };

@@ -88,10 +88,7 @@ router.get('/My', getMyPosts)
  *         description: Post created successfully
  */
 router.post('/', 
-  upload.fields([
-  { name: "images", maxCount: 5 },
-  { name: "videos", maxCount: 5 },
-])
+ upload.array("media", 20)
 , createPost)
 
 

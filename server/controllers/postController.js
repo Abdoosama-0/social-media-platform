@@ -64,6 +64,20 @@ const getPost = async (req, res) => {
   try {
     const { postId } = req.params;
 
+    const currentUser = await User.findById(req.user.userID)
+      .select("following")
+      .lean();
+
+    if (!currentUser) {
+      return res.status(404).json({
+        msg: "User not found",
+      });
+    }
+
+    const followingSet = new Set(
+      currentUser.following.map((id) => id.toString())
+    );
+
     const post = await Post.findById(postId)
       .populate("author", "name profileImageURL")
       .lean();
@@ -77,52 +91,61 @@ const getPost = async (req, res) => {
     const formattedPost = {
       ...post,
       commentsCount: post.comments?.length || 0,
+
+      // 👇 نفس فكرة getPosts
+      isFollowingAuthor: followingSet.has(
+        post.author._id.toString()
+      ),
     };
 
     return res.status(200).json({
-
       msg: "post retrieved successfully",
       post: formattedPost,
     });
   } catch (error) {
     return res.status(500).json({
-      msg:error,
+      msg: error.message,
     });
   }
 };
-
 const createPost = async (req, res) => {
   try {
     const { title } = req.body;
     const authorId = req.user.userID;
 
-    let images = [];
-    let videos = [];
-
-    if (req.files?.images) {
-      images = req.files.images.map((file) => file.path);
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        message: "Please upload at least one image or video.",
+      });
     }
 
-    if (req.files?.videos) {
-      videos = req.files.videos.map((file) => file.path);
-    }
+    const media = req.files.map((file, index) => ({
+      type: file.mimetype.startsWith("image/")
+        ? "image"
+        : "video",
+      url: file.path,
+      order: index,
+    }));
 
     const newPost = new Post({
       title,
       author: authorId,
-      images,
-      videos,
+      media,
     });
 
     await newPost.save();
 
-    const user = await User.findById(authorId);
-    user.posts.push(newPost._id);
-    await user.save();
+    await User.findByIdAndUpdate(authorId, {
+      $push: { posts: newPost._id },
+    });
 
-    return res.json({ post: newPost });
+    return res.status(201).json({
+      post: newPost,
+    });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
