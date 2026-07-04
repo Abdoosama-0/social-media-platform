@@ -38,7 +38,10 @@ const profile = ({ data, posts, setPosts }: any) => {
 <div  className='flex gap-2'>
           <p>Following Count: {data.followingCount}</p> <Following id = {data.user._id} />
           </div>
-          <p>posts:</p>
+           <p>posts:</p>
+           {data.postsCount > 0 ? (
+     < div> 
+         
            {preview && (
       <div
         className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
@@ -56,6 +59,13 @@ const profile = ({ data, posts, setPosts }: any) => {
       <Post key={post._id} post={post} setPosts={setPosts} />
 
 ))}
+</div>  
+)
+
+: (
+  <p>No posts found.</p>
+)}
+
 
 
 

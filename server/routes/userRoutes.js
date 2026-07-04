@@ -8,7 +8,8 @@ const {
   follow,
   getUserData,
   getUserFollowers,
-  getUserFollowing
+  getUserFollowing,
+  findUsers
 
 } = require('../controllers/userController')
 
@@ -20,6 +21,7 @@ router.use(verifyToken)
 
 
 router.get('/me', getMyData)
+router.get('/search', findUsers);
 
 router.get('/:userId', getUserData)
 

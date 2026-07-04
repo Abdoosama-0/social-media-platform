@@ -13,7 +13,7 @@ const {
 const { verifyToken, isAdmin } = require('../Middleware/authMiddleware')
 
 router.use(verifyToken)
-router.use(isAdmin)
+// router.use(isAdmin)
 
 //==========================================================================
 

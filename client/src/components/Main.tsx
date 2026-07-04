@@ -1,10 +1,12 @@
 import React from 'react'
 import Posts from './Posts'
+import Search from './Search'
 
 const Main = () => {
   return (
     <div>
-      posts:
+      <Search/>
+      <p>posts:</p>
       <Posts/>
     </div>
   )

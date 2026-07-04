@@ -2,6 +2,36 @@ require('dotenv').config()
 const redis=require('../config/redis')
 const User=require('../models/User')
 const {isValidEmail} = require('../utility/validate')
+
+const findUsers = async (req, res) => {
+  try {
+    const { q } = req.query; // search keyword
+
+    if (!q || q.trim() === "") {
+      return res.status(400).json({
+        msg: "search query is required",
+      });
+    }
+
+ const users = await User.find({
+  username: { $regex: q, $options: "i" }
+})
+      .select("name email username profileImageURL")
+      .limit(20)
+      .lean();
+
+    return res.status(200).json({
+      results: users,
+      count: users.length,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 const getMyData = async (req, res) => {
   try {
     const user = await User.findById(req.user.userID)
@@ -249,4 +279,4 @@ const getUserFollowing = async (req, res) => {
     });
   }
 };
-module.exports={getMyData,updateUserData,deleteUser,follow,getUserData,getUserFollowers,getUserFollowing}
+module.exports={getMyData,updateUserData,deleteUser,follow,getUserData,getUserFollowers,getUserFollowing,findUsers}
