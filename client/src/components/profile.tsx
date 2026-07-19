@@ -2,6 +2,8 @@ import React from 'react'
 import Post from './Post'
 import Following from './following';
 import Followers from './followers';
+import EditProfile from './EditProfile';
+import DeleteUser from './DeleteUser';
 
 const profile = ({ data, posts, setPosts }: any) => {
         const [preview, setPreview] = React.useState("");
@@ -22,13 +24,19 @@ const profile = ({ data, posts, setPosts }: any) => {
           />
 
           <h1>Name: {data.user.name}</h1>
-          <h1>id : {data.user._id}</h1>
+         
 
           <p>Username: {data.user.username}</p>
 
           <p>Email: {data.user.email}</p>
-
+<EditProfile 
+  profileImageURL={data.user.profileImageURL}
+  name={data.user.name}
+  username={data.user.username}
+  email={data.user.email}
+/>
           <p>Role: {data.user.role}</p>
+           <h1>id : {data.user._id}</h1>
 
           <hr />
 
@@ -60,6 +68,7 @@ const profile = ({ data, posts, setPosts }: any) => {
 
 ))}
 </div>  
+
 )
 
 : (
@@ -68,10 +77,11 @@ const profile = ({ data, posts, setPosts }: any) => {
 
 
 
-
+   <DeleteUser/>
 
         </div>
       ) }
+   
     </div>
   )
 }

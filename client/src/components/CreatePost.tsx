@@ -51,6 +51,7 @@ const CreatePost = () => {
       setTitle("");
       // setMedia([]);
       setClicked(false);
+      window.location.reload(); // Refresh the page to show the new post
     } catch (err) {
       console.log(err);
       setError("Something went wrong");

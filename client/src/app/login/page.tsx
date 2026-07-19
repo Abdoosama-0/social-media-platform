@@ -54,6 +54,7 @@ const Page = () => {
         email: data.userData.email,
         id: data.userData._id,
         photo: data.userData.profileImageURL,
+        role: data.userData.role,
       });
 
       // redirect
@@ -110,6 +111,9 @@ const Page = () => {
         >
           Login
         </button>
+         <a className="text-blue-500" href="http://localhost:3000/ForgetPassword">
+forget password
+      </a>
 
         <p className="text-sm">
           Don&apos;t have an account؟{" "}
@@ -117,7 +121,12 @@ const Page = () => {
             Register
           </a>
         </p>
+                <a className="text-blue-500" href="http://localhost:5000/auth/google">
+        Login with Google
+      </a>
+      
       </form>
+
     </div>
   );
 };

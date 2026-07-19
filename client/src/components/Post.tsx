@@ -5,6 +5,7 @@ import Comments from "./Comments";
 import Link from "next/dist/client/link";
 import { formatPostDate } from "./formatPostDate";
 import { useUserData } from "@/store/userData";
+import PostMenu from "./PostMenu";
 type Media = {
   type: "image" | "video";
   url: string;
@@ -90,25 +91,25 @@ const Post = ({ post, setPosts }: Props) => {
   return (
     <div
       key={post._id}
-      className="border w-fit p-4 rounded cursor-pointer"
+      className="border w-fit p-4 rounded cursor-pointer   transition-colors"
       onClick={() => {
         window.location.href = `/posts/${post._id}`;
       }}
     >
-      <h1
+      {/* <h1
         className="cursor-default"
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
         {post._id}
-      </h1>
-
+      </h1> */}
+<div className="flex items-center justify-between">
       {/* USER */}
-      <div className="flex items-center gap-1 mb-3 w-fit border p-3 rounded">
+      <div className="flex items-center gap-1 mb-3 w-fit border  p-3 rounded">
         <Link
           href={`/${post.author._id}`}
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 hover:bg-gray-100 p-1 rounded"
         >
           <img
             src={post.author.profileImageURL}
@@ -127,27 +128,30 @@ const Post = ({ post, setPosts }: Props) => {
               e.stopPropagation();
               handleFollowToggle(post.author._id);
             }}
-            className="text-sm text-gray-500"
+            className="text-sm text-gray-500 hover:underline"
           >
             {post.author._id !== id &&
               (post.isFollowingAuthor ? "Unfollow" : "Follow")}
           </button>
+              <p className="font-bold">{post.author.name}</p>
         </Link>
 
-        <p className="font-bold">{post.author.name}</p>
+    
       </div>
+            {id && post.author._id === id && (<PostMenu postId={post._id} />)}
 
+</div>
       {/* POST CONTENT */}
-      <p>{formatPostDate(post.createdAt)}</p>
+      <p className="cursor-text w-fit"   onClick={(e) => { e.preventDefault();e.stopPropagation();}}>{formatPostDate(post.createdAt)}</p>
 
-      <h2 className="mb-3">{post.title}</h2>
+      <h2 className="mb-3 cursor-text w-fit"         onClick={(e) => { e.preventDefault();e.stopPropagation();}}>{post.title}</h2>
 {/* MEDIA SLIDER */}
       {sortedMedia.length > 0 && (
-        <div className="relative w-[600px] h-[600px]">
+        <div className="relative w-[600px] h-[600px] ">
           {sortedMedia[currentIndex].type === "image" ? (
             <img
               src={sortedMedia[currentIndex].url}
-              className="w-full h-full object-cover rounded"
+              className="w-full h-full object-cover rounded cursor-zoom-in"
               onClick={(e) => {
                 e.stopPropagation();
                 setPreview(sortedMedia[currentIndex].url);
@@ -157,7 +161,7 @@ const Post = ({ post, setPosts }: Props) => {
             <video
               src={sortedMedia[currentIndex].url}
               controls
-              className="w-full h-full object-cover rounded"
+              className="w-full h-full object-cover rounded cursor-default"
               onClick={(e) => e.stopPropagation()}
             />
           )}
@@ -194,8 +198,8 @@ const Post = ({ post, setPosts }: Props) => {
       {/* PREVIEW */}
       {preview && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-          onClick={() => setPreview("")}
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 cursor-default"
+          onClick={(e) => {e.stopPropagation(),setPreview("")}}
         >
           <img
             src={preview}
@@ -204,6 +208,11 @@ const Post = ({ post, setPosts }: Props) => {
           />
         </div>
       )}
+      <div className="flex items-center gap-2 mt-2"> 
+      <Like post={post} setPosts={setPosts} />
+      <Likes post={post} />
+      <Comments post={post} setPosts={setPosts} />
+ </div>
      
     </div>
   );

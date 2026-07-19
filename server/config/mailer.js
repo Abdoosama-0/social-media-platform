@@ -26,8 +26,7 @@ const sendEmailWithLink = async (to, subject, linkText, linkUrl) => {
           <a href="${linkUrl}" style="display: inline-block; padding: 10px 20px; color: white; background-color: blue; text-decoration: none; border-radius: 5px;">
             ${linkText}
           </a>
-          <p>if the bottom doesn't work you can copy this link and go to it in the browser</p>
-          <p>${linkUrl}</p>
+
         `,
       };
   

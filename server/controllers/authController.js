@@ -28,7 +28,7 @@ const localLogin = (req, res, next) => {
 
     const Payload = { userID: user._id.toString(), role: user.role }
     const accessToken = jwt.sign(Payload, process.env.SECRET_TOKEN, { expiresIn: "1h" });
-    const refreshToken = jwt.sign(Payload, process.env.SECRET_TOKEN);
+    const refreshToken = jwt.sign(Payload, process.env.SECRET_TOKEN,{ expiresIn: "30d" });
     await redis.set(`refresh:${user._id.toString()}`, refreshToken);
     res.cookie("access_token", accessToken, { 
       
@@ -43,7 +43,7 @@ const localLogin = (req, res, next) => {
   })(req, res, next)
 }
 
-//=========================================================================
+//===============================google==========================================
 const googleAuth = passport.authenticate("google", { scope: ["profile", "email"] });
 //----------
 const googleAuthCallback = async (req, res, next) => {
@@ -61,7 +61,7 @@ const googleAuthCallback = async (req, res, next) => {
     await redis.set(`refresh:${user.user._id.toString()}`, refreshToken);
     res.cookie("access_token", accessToken, { httpOnly: true, secure: false, });
     //==========================================
-    return res.redirect('/')
+    return res.redirect(process.env.FRONTEND_URL)
 
 
 
@@ -191,7 +191,7 @@ await redis.set(
 
   const subject = "Reset password";
   const linkText = "click here to Reset password";
-  const linkUrl = `http://localhost:3000/auth/recreatePassword?token=${token}`;
+  const linkUrl = `http://localhost:3000/recreatePassword?token=${token}`;
 
   const response = await sendEmailWithLink(email, subject, linkText, linkUrl);
 
@@ -234,6 +234,16 @@ const recreatePassword = async (req, res) => {
   return res.status(200).json({ msg: "password recreated successfully, go back to login page" })
 
 }
+
+const isLoggedIn1 = (req, res) => {
+  const accessToken = req.cookies.access_token 
+    console.log("accessToken = "+accessToken)
+    if (!accessToken) {
+        console.log("Unauthorized, you must have accessToken to do this")
+        return res.status(401).json({ message: "Unauthorized, you must have accessToken to do this" });
+    }
+    return res.status(200).json({ msg: "User is authenticated" });
+}
 //=========================================================================
 
-module.exports = { register, localLogin, logout, googleAuth, googleAuthCallback, forgetPassword, recreatePassword, verifyOtp }
+module.exports = { register, localLogin, logout, googleAuth, googleAuthCallback, forgetPassword, recreatePassword, verifyOtp, isLoggedIn1 }

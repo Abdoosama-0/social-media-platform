@@ -6,17 +6,20 @@ type UserData = {
   email: string | null;
   id: string | null;
   photo: string | null;
+  role: string | null;
 
   setUserName: (userName: string | null) => void;
   setEmail: (email: string | null) => void;
   setId: (id: string | null) => void;
   setPhoto: (photo: string | null) => void;
+  setRole: (role: string | null) => void;
 
   setUser: (data: {
     userName: string;
     email: string;
     id: string;
     photo: string;
+    role: string;
   }) => void;
 
   clearUserData: () => void;
@@ -29,11 +32,13 @@ export const useUserData = create<UserData>()(
       email: null,
       id: null,
       photo: null,
+      role: null,
 
       setUserName: (userName) => set({ userName }),
       setEmail: (email) => set({ email }),
       setId: (id) => set({ id }),
       setPhoto: (photo) => set({ photo }),
+      setRole: (role) => set({ role }),
 
       // helper مهم جدًا بعد login
       setUser: (data) =>
@@ -42,6 +47,7 @@ export const useUserData = create<UserData>()(
           email: data.email,
           id: data.id,
           photo: data.photo,
+          role: data.role,
         }),
 
       clearUserData: () =>
@@ -50,6 +56,7 @@ export const useUserData = create<UserData>()(
           email: null,
           id: null,
           photo: null,
+          role: null,
         }),
     }),
     {

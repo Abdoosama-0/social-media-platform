@@ -4,13 +4,15 @@ import Link from "next/link";
 import React from "react";
 import { CiLogin, CiLogout } from "react-icons/ci";
 import { FaHome } from "react-icons/fa";
-import { RiAccountCircleFill } from "react-icons/ri";
+import { RiAccountCircleFill, RiDashboardHorizontalFill } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 
 import { useUserData } from "../store/userData";
 import CreatePost from "./CreatePost";
 
 const Nav = () => {
+  const {role} = useUserData.getState();
+  
     const userName = useUserData((state) => state.userName);
 
   const router = useRouter();
@@ -58,6 +60,14 @@ const Nav = () => {
         <FaHome />
       </Link>
      < CreatePost/>
+     {role==="Admin"&&
+
+     <Link href={"/admin"}>
+        <RiDashboardHorizontalFill />
+
+      </Link>
+     }
+
       </div>
     ):
       (

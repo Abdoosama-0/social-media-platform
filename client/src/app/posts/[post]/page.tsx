@@ -96,14 +96,14 @@ const Page = () => {
   return (
     <>
       {post && (
-        <div className="border w-fit p-4 rounded cursor-pointer">
+        <div className="border w-fit p-4 rounded">
           {/* ID */}
           <h1>{post._id}</h1>
 
           {/* USER */}
           <Link
             href={`/${post.author._id}`}
-            className="flex items-center gap-2 mb-3"
+            className="flex items-center gap-2 mb-3 w-fit border p-3 rounded hover:bg-gray-100"
           >
             <img
               src={post.author.profileImageURL}
@@ -119,7 +119,7 @@ const Page = () => {
                 e.preventDefault();
                 handleFollowToggle(post.author._id);
               }}
-              className="text-sm text-gray-500"
+              className="text-sm text-gray-500 hover:underline"
             >
               {post.author._id !== id &&
                 (post.isFollowingAuthor ? "Unfollow" : "Follow")}
@@ -138,7 +138,7 @@ const Page = () => {
               {sortedMedia[currentIndex].type === "image" ? (
                 <img
                   src={sortedMedia[currentIndex].url}
-                  className="w-full h-full object-cover rounded"
+                  className="w-full h-full object-cover rounded cursor-zoom-in"
                   onClick={() =>
                     setPreview(sortedMedia[currentIndex].url)
                   }

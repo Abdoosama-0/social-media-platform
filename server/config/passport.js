@@ -25,7 +25,7 @@ passport.use(new GoogleStrategy(
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.CALLBACK_URL,
 },async (accessToken, refreshToken, profile, done) => {
-    // console.log("111111111111111111111111111111111111111\n");console.log(profile);console.log("111111111111111111111111111111111111111\n")
+  
     try {
         let user = await User.findOne({ email: profile.emails[0].value });
 
