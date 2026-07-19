@@ -22,7 +22,7 @@ return res.status(200).json({msg:"user deleted successfully",user:user})
 
 const getUsers=async(req,res)=>{
     const query={
-        isBanded: false, // Only fetch users who are not banned
+       // isBanded: false, // Only fetch users who are not banned
         role: { $ne: "Admin" } // Exclude Admin users
     }
 const users=await User.find(query)
@@ -41,8 +41,13 @@ const blockUser=async(req,res)=>{
     }
     
     const updatedUser =await User.findByIdAndUpdate(userId,{isBanded:!user.isBanded},{new:true})
+    if(updatedUser.isBanded){
     return res.status(200).json({ msg: "user banded successfully", updatedUser});
+}
+if(!updatedUser.isBanded){
+    return res.status(200).json({ msg: "user unbanded successfully", updatedUser});
 
+}
 
 }
 
