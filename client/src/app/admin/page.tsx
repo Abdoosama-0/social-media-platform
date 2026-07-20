@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/dist/client/link";
 import React, { useEffect, useState } from "react";
 
 type SiteStatistics = {
@@ -181,9 +182,9 @@ useEffect(() => {
 
   <div className="space-y-3">
     {usersList?.map((user) => (
-      <div
+      <Link href={`/${user._id}`}
         key={user._id}
-        className="flex items-center justify-between border rounded-lg p-4"
+        className="flex items-center justify-between border rounded-lg p-4 hover:bg-gray-100 transition-colors"
       >
         <div className="flex items-center gap-3">
           <img
@@ -203,7 +204,10 @@ useEffect(() => {
 
 <div className="flex gap-2">
   <button
-    onClick={() => blockUser(user._id)}
+    onClick={(e) => {
+      e.preventDefault();
+      blockUser(user._id);
+    }}
     className={`px-4 py-2 rounded text-white ${
       user.isBanded
         ? "bg-blue-500 hover:bg-blue-600"
@@ -214,13 +218,16 @@ useEffect(() => {
   </button>
 
   <button
-    onClick={() => deleteUser(user._id)}
+    onClick={(e) => {
+      e.preventDefault();
+      deleteUser(user._id);
+    }}
     className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
   >
     Delete
   </button>
 </div>
-      </div>
+      </Link>
     ))}
   </div>
 </div>

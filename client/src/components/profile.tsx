@@ -4,15 +4,46 @@ import Following from './following';
 import Followers from './followers';
 import EditProfile from './EditProfile';
 import DeleteUser from './DeleteUser';
+import { useUserData } from '@/store/userData';
 
 const profile = ({ data, posts, setPosts }: any) => {
+    const  handleFollowToggle = async (userId: any) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/follow`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      setPosts?.((prev:any) =>
+        prev.map((p:any) =>
+          p.author._id === userId
+            ? {
+                ...p,
+                isFollowingAuthor: !p.isFollowingAuthor,
+              }
+            : p
+        )
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const { id } = useUserData.getState();
         const [preview, setPreview] = React.useState("");
     
   return (
       <div className="p-5">
       {data && (
         <div className="flex flex-col gap-3">
-
+<div className='flex gap-2 items-center'>
           <img
             src={data.user.profileImageURL}
             alt="profile"
@@ -22,19 +53,40 @@ const profile = ({ data, posts, setPosts }: any) => {
               setPreview(data.user.profileImageURL);
             }}
           />
-
+          
+          <div>
+            
+             {data.user._id !== id && (
+             data.isFollowingAuthor &&(
+            <button
+              onClick={() => {
+handleFollowToggle(data.user._id);              }}
+            >
+              {data.isFollowingAuthor ? "Unfollow" : "Follow"}
+            </button>
+            )
+          )}
+          
+          </div>
+</div>
           <h1>Name: {data.user.name}</h1>
          
 
           <p>Username: {data.user.username}</p>
+         
+      
 
           <p>Email: {data.user.email}</p>
+          {data.user._id === id && (
 <EditProfile 
   profileImageURL={data.user.profileImageURL}
   name={data.user.name}
   username={data.user.username}
   email={data.user.email}
 />
+   
+)}
+
           <p>Role: {data.user.role}</p>
            <h1>id : {data.user._id}</h1>
 
@@ -76,8 +128,11 @@ const profile = ({ data, posts, setPosts }: any) => {
 )}
 
 
+{data.user._id === id && (
 
-   <DeleteUser/>
+    <DeleteUser/>
+)}
+ 
 
         </div>
       ) }

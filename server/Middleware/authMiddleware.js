@@ -12,11 +12,20 @@ if(req.cookies&&req.cookies.access_token){
 //==========================================================================================
 
 //==========================================================================================
-const refreshAccessToken=(refreshToken)=>{
-  const userPayload=jwt.verify(refreshToken,process.env.SECRET_TOKEN)
-  const newAccessToken=jwt.sign(userPayload, process.env.SECRET_TOKEN, { expiresIn: "1h" });
-  return newAccessToken
-}
+const refreshAccessToken = (refreshToken) => {
+  const userPayload = jwt.verify(refreshToken, process.env.SECRET_TOKEN);
+
+  return jwt.sign(
+    {
+      userID: userPayload.userID,
+      role: userPayload.role,
+    },
+    process.env.SECRET_TOKEN,
+    {
+      expiresIn: "1h",
+    }
+  );
+};
 
 
 
@@ -52,13 +61,20 @@ const user = await User.findById(decodedPayload.userID);
     } catch (error) {
       
         if (error.name === "TokenExpiredError") {
-          console.log("JWT expired")
+          console.log("JWT expired1")
           const userPayload=jwt.decode(accessToken)
          
           const refresh= await redis.get((`refresh:${userPayload.userID}`))
-         
+         if (!refresh) {
+          console.log("Refresh token not found")
+  res.clearCookie("access_token");
+  return res.status(401).json({
+    msg: "Refresh token not found",
+  });
+}
           const newAccessToken=refreshAccessToken(refresh)
           if (!newAccessToken){
+            console.log("failed refreshToken")
             return res.status(500).json({ error: "failed refreshToken",msg:error.message  });
           }
           res.cookie("access_token", newAccessToken, { httpOnly: true, secure: false, });
@@ -67,6 +83,7 @@ const user = await User.findById(decodedPayload.userID);
           return next();
 
           } else {
+            console.log("invalid token")
 
             console.log(error)
             return res.status(403).json({msg:"invalid token"})

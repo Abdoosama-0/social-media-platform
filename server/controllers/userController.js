@@ -177,6 +177,7 @@ const follow = async (req, res) => {
 };
 const getUserData = async (req, res) => {
   try {
+const currentUserId = req.user.userID;
         const { userId } = req.params;
 
     const user = await User.findById(userId)
@@ -194,14 +195,20 @@ const getUserData = async (req, res) => {
         message: "User not found",
       });
     }
-
+let isFollowingAuthor = null;
+  if(currentUserId.toString() !== userId.toString()){
+ isFollowingAuthor = user.followers.some(
+  (id) => id.toString() === currentUserId
+);
+  }
 const formattedPosts = user.posts
   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
   .map((post) => ({
     ...post,
     commentsCount: post.comments?.length || 0,
+    isFollowingAuthor
   }));
-
+  
     return res.status(200).json({
       user: {
         ...user,
@@ -215,6 +222,7 @@ const formattedPosts = user.posts
       followersCount: user.followers?.length || 0,
 
       followingCount: user.following?.length || 0,
+      isFollowingAuthor,
     });
   } catch (error) {
     return res.status(500).json({
