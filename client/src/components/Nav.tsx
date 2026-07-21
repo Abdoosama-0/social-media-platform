@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useUserData } from "../store/userData";
 import CreatePost from "./CreatePost";
 import Search from "./Search";
+import { FaArrowTrendUp } from "react-icons/fa6";
 
 const Nav = () => {
   const { role } = useUserData.getState();
@@ -95,10 +96,12 @@ const Nav = () => {
           href="/"
           className="flex items-center gap-2 font-semibold text-foreground transition-opacity hover:opacity-80"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
+          {/* <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
             S
-          </span>
-          <span className="hidden sm:inline">SocialNet</span>
+          </span> */}
+          <FaArrowTrendUp className="text-3xl"/>
+
+          <span className="hidden sm:inline text-3xl">Trendy</span>
         </Link>
 
         <nav
