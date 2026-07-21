@@ -1,12 +1,13 @@
 "use client";
 
-import Post from "@/components/Post";
 import Profile from "@/components/profile";
 import React, { useEffect, useState } from "react";
+import type { Post, ProfileData } from "@/types";
 
 const Page = () => {
-  const [data, setData] = useState<any>(null);
-const [posts, setPosts] = useState<any[]>([]);
+  const [data, setData] = useState<ProfileData | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+
   useEffect(() => {
     const getMe = async () => {
       try {
@@ -23,7 +24,6 @@ const [posts, setPosts] = useState<any[]>([]);
 
         setData(result);
         setPosts(result.user.posts);
-
       } catch (err) {
         console.log(err);
       }
@@ -32,10 +32,7 @@ const [posts, setPosts] = useState<any[]>([]);
     getMe();
   }, []);
 
-  return (
-    <Profile data={data} posts={posts} setPosts={setPosts} />
-  
-  );
+  return <Profile data={data} posts={posts} setPosts={setPosts} />;
 };
 
 export default Page;

@@ -1,9 +1,15 @@
 import Link from "next/link";
 import React from "react";
+import { RiCloseLine } from "react-icons/ri";
+import type { FollowUser } from "@/types";
 
-const Following = ({ id }: any) => {
+type FollowingProps = {
+  id: string;
+};
+
+const Following = ({ id }: FollowingProps) => {
   const [clicked, setClicked] = React.useState(false);
-  const [following, setFollowing] = React.useState([]);
+  const [following, setFollowing] = React.useState<FollowUser[]>([]);
   const [loading, setLoading] = React.useState(false);
 
   const fetchFollowing = async () => {
@@ -38,54 +44,76 @@ const Following = ({ id }: any) => {
   };
 
   return (
-    <div>
+    <>
       <button
+        type="button"
         onClick={handleOpen}
-        className="text-sm text-gray-500"
+        className="text-xs text-accent hover:underline"
+        aria-label="Show following"
       >
-        Show Following
+        View
       </button>
 
       {clicked && (
         <div
           onClick={() => setClicked(false)}
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="following-title"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white p-4 rounded-lg min-w-[300px]"
+            className="modal-content max-w-sm"
           >
-            <h2 className="text-lg font-bold mb-4">
-              Following
-            </h2>
+            <div className="modal-header">
+              <h2 id="following-title" className="text-lg font-semibold">
+                Following
+              </h2>
+              <button
+                type="button"
+                onClick={() => setClicked(false)}
+                className="btn btn-ghost btn-icon btn-sm"
+                aria-label="Close"
+              >
+                <RiCloseLine className="text-xl" />
+              </button>
+            </div>
 
-            {loading ? (
-              <p>Loading...</p>
-            ) : following.length === 0 ? (
-              <p>No following users.</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {following.map((user: any) => (
-                  <Link
-                    href={`/${user._id}`}
-                    key={user._id}
-                    className="flex items-center gap-3"
-                  >
-                    <img
-                      src={user.profileImageURL}
-                      alt={user.username}
-                      className="w-10 h-10 rounded-full"
-                    />
-
-                    <span>{user.username}</span>
-                  </Link>
-                ))}
-              </div>
-            )}
+            <div className="modal-body">
+              {loading ? (
+                <div className="flex items-center justify-center gap-2 py-8 text-muted">
+                  <span className="spinner" aria-hidden />
+                  <span className="text-sm">Loading...</span>
+                </div>
+              ) : following.length === 0 ? (
+                <div className="empty-state py-8">
+                  <p className="text-sm">No following users.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  {following.map((user) => (
+                    <Link
+                      href={`/${user._id}`}
+                      key={user._id}
+                      className="flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-surface-hover"
+                      onClick={() => setClicked(false)}
+                    >
+                      <img
+                        src={user.profileImageURL}
+                        alt=""
+                        className="avatar avatar-md"
+                      />
+                      <span className="font-medium">@{user.username}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

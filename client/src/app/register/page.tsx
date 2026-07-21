@@ -11,10 +11,11 @@ const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-    const [showPass,setShowPass]=useState(false); //add
+  const [showPass, setShowPass] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,12 +31,12 @@ const RegisterPage = () => {
       formData.append("password", password);
 
       if (image) {
-        alert("img")
+        alert("img");
         formData.append("profileImageURL", image);
       }
 
       const res = await fetch(
-         `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
         {
           method: "POST",
           body: formData,
@@ -51,7 +52,6 @@ const RegisterPage = () => {
       }
 
       router.push(`/verify-otp?email=${email}`);
-
     } catch (err) {
       setError("Network error");
     } finally {
@@ -60,66 +60,109 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="page-container-narrow flex items-center justify-center min-h-[calc(100vh-3.5rem)] py-8">
       <form
         onSubmit={handleRegister}
-        className="flex flex-col gap-4 w-[350px]"
+        className="card w-full p-6 sm:p-8 space-y-5"
       >
-        <h1 className="text-2xl font-bold">Register</h1>
+        <div className="text-center mb-2">
+          <h1 className="text-2xl font-semibold mb-1">Create account</h1>
+          <p className="text-sm text-muted">Join SocialNet today</p>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="border p-2 rounded"
-        />
+        <div>
+          <label htmlFor="name" className="label">
+            Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            placeholder="Your full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="input"
+          />
+        </div>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 rounded"
-        />
+        <div>
+          <label htmlFor="email" className="label">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input"
+          />
+        </div>
 
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="border p-2 rounded"
-        />
+        <div>
+          <label htmlFor="username" className="label">
+            Username
+          </label>
+          <input
+            id="username"
+            type="text"
+            placeholder="Choose a username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="input"
+          />
+        </div>
 
-     <div className="relative">
-  <input
-    type={showPass ? "text" : "password"}
-    placeholder="Password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    className="border p-2 rounded w-full pr-16"
-  />
+        <div>
+          <label htmlFor="reg-password" className="label">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              id="reg-password"
+              type={showPass ? "text" : "password"}
+              placeholder="Create a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input pr-16"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass(!showPass)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted hover:text-foreground transition-colors"
+            >
+              {showPass ? "Hide" : "Show"}
+            </button>
+          </div>
+        </div>
 
-  <button
-    type="button"
-    onClick={() => setShowPass(!showPass)}
-    className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-600 cursor-pointer"
-  >
-    {showPass ? "Hide" : "Show"}
-  </button>
-</div>
-        {/* الصورة */}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) =>
-            setImage(e.target.files?.[0] || null)
-          }
-          className="border p-2 rounded"
-        />
+        <div>
+          <label htmlFor="profile-image" className="label">
+            Profile image
+          </label>
+          <input
+            id="profile-image"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+              setImage(file);
+              setImagePreview(file ? URL.createObjectURL(file) : null);
+            }}
+            className="input file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:bg-surface-hover"
+          />
+          {imagePreview && (
+            <div className="mt-3 flex justify-center">
+              <img
+                src={imagePreview}
+                alt="Profile preview"
+                className="avatar avatar-xl object-cover"
+              />
+            </div>
+          )}
+        </div>
 
         {error && (
-          <p className="text-red-500 text-sm">
+          <p className="text-error text-sm text-center" role="alert">
             {error}
           </p>
         )}
@@ -127,14 +170,21 @@ const RegisterPage = () => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-black text-white p-2 rounded"
+          className="btn btn-primary btn-lg w-full"
         >
-          {loading ? "Creating account..." : "Register"}
+          {loading ? (
+            <>
+              <span className="spinner" aria-hidden />
+              Creating account...
+            </>
+          ) : (
+            "Register"
+          )}
         </button>
 
-        <p className="text-sm">
+        <p className="text-sm text-muted text-center">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-500">
+          <a href="/login" className="link">
             Login
           </a>
         </p>

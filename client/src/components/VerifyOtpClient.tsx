@@ -38,7 +38,6 @@ export default function VerifyOtpClient() {
 
       alert("registered successfully please login");
       router.push("/login");
-
     } catch {
       setError("Network error");
     } finally {
@@ -46,28 +45,62 @@ export default function VerifyOtpClient() {
     }
   };
 
-  if (!email) return <p>Invalid access</p>;
+  if (!email) {
+    return (
+      <div className="page-container-narrow">
+        <div className="card empty-state py-12">
+          <p className="text-destructive font-medium">Invalid access</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <form onSubmit={handleVerify} className="flex flex-col gap-4 w-[350px]">
-        <h1 className="text-2xl font-bold">Verify OTP</h1>
+    <div className="page-container-narrow flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
+      <form
+        onSubmit={handleVerify}
+        className="card w-full p-6 sm:p-8 space-y-5"
+      >
+        <div className="text-center mb-2">
+          <h1 className="text-2xl font-semibold mb-1">Verify OTP</h1>
+          <p className="text-sm text-muted">
+            Code sent to: <span className="text-foreground">{email}</span>
+          </p>
+        </div>
 
-        <p className="text-sm text-gray-500">
-          Code sent to: {email}
-        </p>
+        <div>
+          <label htmlFor="otp" className="label">
+            Verification code
+          </label>
+          <input
+            id="otp"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            className="input text-center tracking-[0.3em] font-mono"
+            placeholder="Enter OTP"
+            autoComplete="one-time-code"
+          />
+        </div>
 
-        <input
-          value={otp}
-          onChange={(e) => setOtp(e.target.value)}
-          className="border p-2 rounded text-center tracking-widest"
-          placeholder="Enter OTP"
-        />
+        {error && (
+          <p className="text-error text-sm text-center" role="alert">
+            {error}
+          </p>
+        )}
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-
-        <button disabled={loading} className="bg-black text-white p-2 rounded">
-          {loading ? "Verifying..." : "Verify"}
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn btn-primary btn-lg w-full"
+        >
+          {loading ? (
+            <>
+              <span className="spinner" aria-hidden />
+              Verifying...
+            </>
+          ) : (
+            "Verify"
+          )}
         </button>
       </form>
     </div>

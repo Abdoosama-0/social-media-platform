@@ -1,57 +1,58 @@
 "use client";
 
-import Image from "next/image";
 import { useUserData } from "../store/userData";
 import Main from "@/components/Main";
-import NotUser from "@/components/NotUser";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-    const setUser = useUserData((state) => state.setUser);
-  
+  const setUser = useUserData((state) => state.setUser);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
   const router = useRouter();
 
-  const isLoggedIn =async () => {
+  const isLoggedIn = async () => {
     const res = await fetch("http://localhost:5000/users/me", {
       method: "GET",
-      credentials: "include", // important to include cookies / auth
+      credentials: "include",
     });
     const data = await res.json();
     if (!res.ok) {
-      return false; // User is not logged in
+      return false;
     }
-       setUser({
-        userName: data.user.username,
-        email: data.user.email,
-        id: data.user._id,
-        photo: data.user.profileImageURL,
-        role: data.user.role,
-      });
-    return true; // User is logged in
-  };
-useEffect(() => {
-  const checkLoginStatus = async () => {
-    const loggedIn = await isLoggedIn();
-    setIsAuthenticated(loggedIn);
-    if (!loggedIn) {
-      // Redirect to login page if not logged in
-      router.push("/login");
-    }
+    setUser({
+      userName: data.user.username,
+      email: data.user.email,
+      id: data.user._id,
+      photo: data.user.profileImageURL,
+      role: data.user.role,
+    });
+    return true;
   };
 
-  checkLoginStatus();
-}, []);
-const userName = useUserData((state) => state.userName);
-  return (
-   <div >
-    {isAuthenticated&&
-    <Main/>
-    
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const loggedIn = await isLoggedIn();
+      setIsAuthenticated(loggedIn);
+      setChecking(false);
+      if (!loggedIn) {
+        router.push("/login");
+      }
+    };
 
-    }
+    checkLoginStatus();
+  }, []);
 
-   </div>
-  );
+  if (checking) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
+        <div className="flex items-center gap-3 text-muted">
+          <span className="spinner" aria-hidden />
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return <div>{isAuthenticated && <Main />}</div>;
 }

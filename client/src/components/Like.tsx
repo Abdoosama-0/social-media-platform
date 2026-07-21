@@ -1,43 +1,60 @@
-import React from 'react'
-import { AiFillLike } from 'react-icons/ai'
+import React, { useEffect } from "react";
+import { AiFillLike } from "react-icons/ai";
+import type { Post } from "@/types";
 
-const Like = ({setPosts,postId,setPost}:any) => {
+type LikeProps = {
+  postId: string;
+  setPosts?: React.Dispatch<React.SetStateAction<Post[]>>;
+  setPost?: React.Dispatch<React.SetStateAction<Post | null>>;
+  post: any;
+};
 
-const handleLike = async (postId: string) => {
-  try {
-    const res = await fetch(
-      `http://localhost:5000/posts/Like/${postId}`,
-      {
+const Like = ({ setPosts, postId, setPost, post }: LikeProps) => {
+  // useEffect(() => {
+  //   alert(post.isLiked);
+  // }, []);
+  const handleLike = async (id: string) => {
+    try {
+      const res = await fetch(`http://localhost:5000/posts/Like/${id}`, {
         method: "POST",
         credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.msg);
+        return;
       }
-    );
+      if (setPost) {
+        setPost(data.post);
+        return;
+      }
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.msg);
-      return;
+      setPosts?.((prev) =>
+        prev.map((post) => (post._id === id ? data.post : post))
+      );
+    } catch (error) {
+      console.log(error);
     }
-    if(setPost) {
-      setPost(data.post)
-      return
-    }
+  };
 
-    setPosts((prev: any) =>
-      prev.map((post: any) =>
-        post._id === postId
-          ? data.post
-          : post
+  return (
+    <button
+      type="button"
+      onClick={() => handleLike(postId)}
+      className="flex items-center  text-sm text-muted hover:text-accent transition-colors"
+      aria-label="Like post"
+    >
+      {post.isLiked ? (
+        <AiFillLike className="text-accent" />
+      ) : (
+        <AiFillLike className="text-muted" />
       )
-    );
+      }
 
-  } catch (error) {
-    console.log(error);
-  }
-};  return (
-<AiFillLike className='cursor-pointer' onClick={()=>handleLike(postId)} />
-  )
-}
+    </button>
+  );
+};
 
-export default Like
+export default Like;

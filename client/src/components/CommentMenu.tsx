@@ -1,25 +1,65 @@
-import React from 'react'
-import { CiMenuKebab } from 'react-icons/ci'
+import React from "react";
+import { HiDotsHorizontal } from "react-icons/hi";
+import { RiCloseLine } from "react-icons/ri";
+import type { Comment } from "@/types";
 
 interface CommentMenuProps {
-    setComments: React.Dispatch<React.SetStateAction<any[]>>;
-    commentId: string;
-    comment: string;
+  setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
+  commentId: string;
+  comment: string;
 }
 
-const CommentMenu = ({setComments , commentId, comment}:CommentMenuProps) => {
-    const [clicked, setClicked] = React.useState(false)
-    const [file, setFile] = React.useState<File | null>(null)
-    const [editMode, setEditMode] = React.useState(false)
-    const [newComment, setNewComment] = React.useState(comment)
-    const [loading, setLoading] = React.useState(false)
-const handleDelete = async (commentId: string) => {
-  try {
+const CommentMenu = ({
+  setComments,
+  commentId,
+  comment,
+}: CommentMenuProps) => {
+  const [clicked, setClicked] = React.useState(false);
+  const [file, setFile] = React.useState<File | null>(null);
+  const [editMode, setEditMode] = React.useState(false);
+  const [newComment, setNewComment] = React.useState(comment);
+  const [loading, setLoading] = React.useState(false);
+
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/posts/deleteComment/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.msg);
+        return;
+      }
+
+      setComments((prev) => prev.filter((c) => c._id !== id));
+      setClicked(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleEdit = async (id: string) => {
+    setLoading(true);
+    const formData = new FormData();
+
+    formData.append("comment", newComment);
+
+    if (file) {
+      formData.append("commentImage", file);
+    }
+
     const res = await fetch(
-      `http://localhost:5000/posts/deleteComment/${commentId}`,
+      `http://localhost:5000/posts/updateComment/${id}`,
       {
-        method: "DELETE",
+        method: "PATCH",
         credentials: "include",
+        body: formData,
       }
     );
 
@@ -27,124 +67,112 @@ const handleDelete = async (commentId: string) => {
 
     if (!res.ok) {
       alert(data.msg);
+      setLoading(false);
       return;
     }
+    alert("Comment updated successfully");
 
     setComments((prev) =>
-      prev.filter(
-        (comment) => comment._id !== commentId
+      prev.map((c) =>
+        c._id === id
+          ? {
+              ...c,
+              comment: newComment,
+              commentImage: file
+                ? URL.createObjectURL(file)
+                : c.commentImage,
+            }
+          : c
       )
     );
+    setLoading(false);
+    setEditMode(false);
+    setClicked(false);
+  };
 
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-
-const handleEdit = async (commentId: string) => {
-    setLoading(true)
-  const formData = new FormData();
-
-  formData.append("comment", newComment);
-
-  if (file) {
-    formData.append("commentImage", file);
-  }
-
-  const res = await fetch(
-    `http://localhost:5000/posts/updateComment/${commentId}`,
-    {
-      method: "PATCH",
-      credentials: "include",
-      body: formData,
-    }
-  );
-
-  const data = await res.json();
-
-  if (!res.ok) {
-
-    alert(data.msg);
-    setLoading(false)
-    return;
-  }
-alert("Comment updated successfully");
-
-setComments((prev) =>
-  prev.map((c) =>
-    c._id === commentId
-      ? {
-          ...c,
-          comment: newComment, // أو editText لو مستخدم state
-          commentImage: file ? URL.createObjectURL(file) : c.commentImage,
-        }
-      : c
-  )
-); 
-  setLoading(false)
-setEditMode(false);
-setClicked(false);
-};
-    return (
-    <div className="relative">
-        <CiMenuKebab className='cursor-pointer' onClick={() => setClicked(true)} />
-
-  
-    {clicked && (
-      <div className="absolute top-0 right-0 bg-white shadow-lg rounded-lg p-2 z-30">
-        <p  className='cursor-pointer absolute top-0 right-0 my-1 mx-2' onClick={()=>setClicked(false)}>x</p>
-        <button onClick={()=> setEditMode(true)} className="block px-4 py-2 hover:bg-gray-200 cursor-pointer">Edit</button>
-        <button onClick={()=> handleDelete(commentId)} className="block px-4 py-2 hover:bg-gray-200 cursor-pointer">Delete</button>
-      </div>
-    )}
- {editMode && (
-  <div className="absolute top-0 left-0 bg-white shadow-lg rounded-lg p-4 z-30 ">
-
-    {/* المحتوى الأساسي */}
-    <div className="opacity-100">
-      <p className="cursor-pointer" onClick={() => setEditMode(false)}>
-        X
-      </p>
-
-      <input
-        type="text"
-        value={newComment}
-        onChange={(e) => setNewComment(e.target.value)}
-        className="w-full border p-2 rounded mb-2"
-      />
-
-      <input
-        type="file"
-          accept="image/*"
-
-        onChange={(e) =>
-          setFile(e.target.files ? e.target.files[0] : null)
-        }
-        className="mb-2"
-      />
-
+  return (
+    <div className="relative shrink-0">
       <button
-        onClick={() => handleEdit(commentId)}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
+        type="button"
+        className="btn btn-ghost btn-icon btn-sm"
+        onClick={() => setClicked(!clicked)}
+        aria-label="Comment options"
+        aria-expanded={clicked}
       >
-        Save
+        <HiDotsHorizontal />
       </button>
+
+      {clicked && !editMode && (
+        <div className="dropdown-menu top-full right-0 mt-1">
+          <button
+            type="button"
+            onClick={() => setEditMode(true)}
+            className="dropdown-item"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDelete(commentId)}
+            className="dropdown-item text-destructive"
+          >
+            Delete
+          </button>
+        </div>
+      )}
+
+      {editMode && (
+        <div className="absolute top-full right-0 mt-1 z-40 w-64 card p-4 shadow-lg">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium">Edit comment</span>
+            <button
+              type="button"
+              onClick={() => {
+                setEditMode(false);
+                setClicked(false);
+              }}
+              className="btn btn-ghost btn-icon btn-sm"
+              aria-label="Close"
+            >
+              <RiCloseLine />
+            </button>
+          </div>
+
+          <input
+            type="text"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            className="input mb-2"
+            aria-label="Edit comment text"
+          />
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              setFile(e.target.files ? e.target.files[0] : null)
+            }
+            className="input mb-3 file:mr-2 file:text-sm"
+          />
+
+          <button
+            type="button"
+            onClick={() => handleEdit(commentId)}
+            className="btn btn-accent btn-md w-full"
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Save"}
+          </button>
+
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-foreground/80 text-primary-foreground rounded-xl">
+              Updating...
+            </div>
+          )}
+        </div>
+      )}
     </div>
+  );
+};
 
-    {/* 🔥 loading overlay فوق كل حاجة */}
-    {loading && (
-      <div className="absolute inset-0 bg-black/80 flex items-center justify-center text-white text-lg rounded-lg z-50">
-        Updating...
-      </div>
-    )}
-  </div>
-)}
-
-    
-
-    </div>
-    )
-}
-
-export default CommentMenu
+export default CommentMenu;

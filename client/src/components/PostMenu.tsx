@@ -1,50 +1,73 @@
-import React from 'react'
-import { CiMenuKebab } from 'react-icons/ci'
+import React from "react";
+import { HiDotsHorizontal } from "react-icons/hi";
 
-const PostMenu = ({postId}:any) => {
-    const [clicked, setClicked] = React.useState(false)
-    const handleDelete = async () => {
-        try {
-             const confirmation = window.confirm("Are you sure you want to delete your post? This action cannot be undone.");
-            if (!confirmation) {
-                return; // User canceled the deletion
-            }
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}`, {
-                method: 'DELETE',
-                credentials: 'include',
-            });
+type PostMenuProps = {
+  postId: string;
+};
 
-            const data = await res.json();
-            if (!res.ok) {
-                
-                console.error(data.msg || data.error ||'Failed to delete post');
-                return;
-            }
-            alert('Post deleted successfully');
-            // Optionally, you can refresh the page or update the state to remove the deleted post from the UI
-            window.location.reload(); // Refresh the page to reflect the deletion
+const PostMenu = ({ postId }: PostMenuProps) => {
+  const [clicked, setClicked] = React.useState(false);
+
+  const handleDelete = async () => {
+    try {
+      const confirmation = window.confirm(
+        "Are you sure you want to delete your post? This action cannot be undone."
+      );
+      if (!confirmation) {
+        return;
+      }
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
         }
-        catch (error) {
-            console.error('Error deleting post:', error);
-        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.error(data.msg || data.error || "Failed to delete post");
+        return;
+      }
+      alert("Post deleted successfully");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting post:", error);
     }
+  };
 
   return (
-    <div className='relative '>
+    <div className="relative">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setClicked(!clicked);
+        }}
+        className="btn btn-ghost btn-icon btn-sm"
+        aria-label="Post options"
+        aria-expanded={clicked}
+      >
+        <HiDotsHorizontal />
+      </button>
 
-        <CiMenuKebab  onClick={(e) => {  e.preventDefault();
-              e.stopPropagation();setClicked(!clicked)}} />
-        {clicked && (
-            <div className='absolute top-full right-0 bg-white shadow-lg rounded-md p-2'>
-                {/* <button className='block px-4 py-2 hover:bg-gray-100'>Edit</button> */}
-                <button className='block px-4 py-2 hover:bg-gray-100' onClick={handleDelete}>
-                    Delete
-                </button>
-            </div>
-        )}
-
+      {clicked && (
+        <div
+          className="dropdown-menu top-full right-0 mt-1"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            className="dropdown-item text-destructive"
+            onClick={handleDelete}
+          >
+            Delete
+          </button>
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default PostMenu
+export default PostMenu;

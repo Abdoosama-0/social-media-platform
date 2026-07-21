@@ -39,6 +39,9 @@ const getPosts = async (req, res) => {
       isFollowingAuthor: followingSet.has(
         post.author._id.toString()
       ),
+       isLiked: post.likes.some(
+    (id) => id.toString() === currentUser._id.toString()
+  ),
     }));
 
     const count =
@@ -234,6 +237,8 @@ const Like = async (req, res) => {
 
   const { postId } = req.params;
 
+    const currentUserId = req.user.userID;
+
   const post = await Post.findById(postId);
 
   if (!post) {
@@ -269,6 +274,10 @@ const Like = async (req, res) => {
 
   updatedPost.commentsCount =
     updatedPost.comments?.length || 0;
+
+        updatedPost.isLiked = updatedPost.likes.some(
+      (id) => id.toString() === currentUserId
+    );
 
   res.status(200).json({
     post: updatedPost,

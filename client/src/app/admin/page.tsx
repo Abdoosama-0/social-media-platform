@@ -2,30 +2,18 @@
 
 import Link from "next/dist/client/link";
 import React, { useEffect, useState } from "react";
-
-type SiteStatistics = {
-  totalUsers: number;
-  blockedUsers: number;
-  activeUsers: number;
-  admins: number;
-  newUsersLastWeek: number;
-  totalPosts: number;
-};
-type User = {
-  _id: string;
-  name: string;
-  username: string;
-  email: string;
-  profileImageURL: string;
-  isBanded: boolean;
-  role: string;
-};
-
-
+import {
+  HiOutlineUsers,
+  HiOutlineShieldCheck,
+  HiOutlineBan,
+  HiOutlineUserAdd,
+  HiOutlineDocumentText,
+} from "react-icons/hi";
+import type { AdminUser, SiteStatistics } from "@/types";
 
 const Page = () => {
   const [stats, setStats] = useState<SiteStatistics | null>(null);
-  const [usersList, setUsersList] = useState<User[]>([]);
+  const [usersList, setUsersList] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   const siteStatistics = async () => {
@@ -52,185 +40,218 @@ const Page = () => {
       setLoading(false);
     }
   };
-const users = async () => {
-  try {
-    const res = await fetch("http://localhost:5000/admins/users", {
-      credentials: "include",
-    });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.msg || data.error);
-      return;
-    }
-
-    setUsersList(data.allUsers);
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const blockUser = async (userId: string) => {
-  try {
-    const res = await fetch(
-      `http://localhost:5000/admins/blockUser/${userId}`,
-      {
-        method: "PATCH",
+  const users = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/admins/users", {
         credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.msg || data.error);
+        return;
       }
+
+      setUsersList(data.allUsers);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const blockUser = async (userId: string) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/admins/blockUser/${userId}`,
+        {
+          method: "PATCH",
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.msg || data.error);
+        return;
+      }
+
+      alert(data.msg);
+
+      users();
+      siteStatistics();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this user?"
     );
 
-    const data = await res.json();
+    if (!confirmDelete) return;
 
-    if (!res.ok) {
-      alert(data.msg || data.error);
-      return;
-    }
-    
-    
+    try {
+      const res = await fetch(
+        `http://localhost:5000/admins/deleteUser/${userId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
-    alert(data.msg);
+      const data = await res.json();
 
-    users();
-    siteStatistics();
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const deleteUser = async (userId: string) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this user?"
-  );
-
-  if (!confirmDelete) return;
-
-  try {
-    const res = await fetch(
-      `http://localhost:5000/admins/deleteUser/${userId}`,
-      {
-        method: "DELETE",
-        credentials: "include",
+      if (!res.ok) {
+        alert(data.msg || data.error);
+        return;
       }
-    );
 
-    const data = await res.json();
+      alert(data.msg);
 
-    if (!res.ok) {
-      alert(data.msg || data.error);
-      return;
+      users();
+      siteStatistics();
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
     }
+  };
 
-    alert(data.msg);
-
-
-    users();
+  useEffect(() => {
     siteStatistics();
-  } catch (err) {
-    console.error(err);
-    alert("Something went wrong");
+    users();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="page-container flex items-center justify-center py-20">
+        <div className="flex items-center gap-3 text-muted">
+          <span className="spinner" aria-hidden />
+          <span>Loading dashboard...</span>
+        </div>
+      </div>
+    );
   }
-};
 
-useEffect(() => {
-  siteStatistics();
-  users();
-}, []);
-
-  if (loading) return <div>Loading...</div>;
+  const statItems = stats
+    ? [
+        {
+          label: "Total Users",
+          value: stats.totalUsers,
+          icon: HiOutlineUsers,
+        },
+        {
+          label: "Active Users",
+          value: stats.activeUsers,
+          icon: HiOutlineShieldCheck,
+        },
+        {
+          label: "Blocked Users",
+          value: stats.blockedUsers,
+          icon: HiOutlineBan,
+        },
+        { label: "Admins", value: stats.admins, icon: HiOutlineShieldCheck },
+        {
+          label: "New Users (Last Week)",
+          value: stats.newUsersLastWeek,
+          icon: HiOutlineUserAdd,
+        },
+        {
+          label: "Total Posts",
+          value: stats.totalPosts,
+          icon: HiOutlineDocumentText,
+        },
+      ]
+    : [];
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Welcome Admin</h1>
+    <div className="page-container">
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-1">
+          Admin Dashboard
+        </h1>
+        <p className="text-muted text-sm">Manage users and monitor platform activity</p>
+      </div>
 
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="border rounded-lg p-4">
-            <h2 className="font-semibold">Total Users</h2>
-            <p className="text-2xl">{stats.totalUsers}</p>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h2 className="font-semibold">Active Users</h2>
-            <p className="text-2xl">{stats.activeUsers}</p>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h2 className="font-semibold">Blocked Users</h2>
-            <p className="text-2xl">{stats.blockedUsers}</p>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h2 className="font-semibold">Admins</h2>
-            <p className="text-2xl">{stats.admins}</p>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h2 className="font-semibold">New Users (Last Week)</h2>
-            <p className="text-2xl">{stats.newUsersLastWeek}</p>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h2 className="font-semibold">Total Posts</h2>
-            <p className="text-2xl">{stats.totalPosts}</p>
-          </div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+          {statItems.map((item) => (
+            <div key={item.label} className="stat-card">
+              <div className="flex items-center gap-2 mb-2 text-muted">
+                <item.icon className="text-lg" aria-hidden />
+                <h2 className="text-sm font-medium">{item.label}</h2>
+              </div>
+              <p className="text-2xl sm:text-3xl font-semibold">{item.value}</p>
+            </div>
+          ))}
         </div>
       )}
-      <div className="mt-8">
-  <h2 className="text-xl font-bold mb-4">Users</h2>
 
-  <div className="space-y-3">
-    {usersList?.map((user) => (
-      <Link href={`/${user._id}`}
-        key={user._id}
-        className="flex items-center justify-between border rounded-lg p-4 hover:bg-gray-100 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <img
-            src={user.profileImageURL || "/default-profile.png"}
-            alt={user.name}
-            className="w-12 h-12 rounded-full object-cover"
-          />
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Users</h2>
 
-          <div>
-            <p className="font-semibold">{user.name}</p>
-            <p className="font-semibold">{user._id}</p>
+        <div className="space-y-3">
+          {usersList?.map((user) => (
+            <div
+              key={user._id}
+              className="card card-hover p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <Link
+                href={`/${user._id}`}
+                className="flex items-center gap-3 min-w-0 flex-1"
+              >
+                <img
+                  src={user.profileImageURL || "/default-profile.png"}
+                  alt=""
+                  className="avatar avatar-md shrink-0"
+                />
 
-            <p className="text-gray-500">{user.username}</p>
-            <p className="text-sm">{user.email}</p>
-          </div>
+                <div className="min-w-0">
+                  <p className="font-semibold truncate">{user.name}</p>
+                  <p className="text-sm text-muted truncate">
+                    @{user.username}
+                  </p>
+                  <p className="text-xs text-muted truncate">{user.email}</p>
+                  <p className="text-xs font-mono text-muted truncate mt-0.5">
+                    {user._id}
+                  </p>
+                </div>
+              </Link>
+
+              <div
+                className="flex gap-2 shrink-0"
+                onClick={(e) => e.preventDefault()}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    blockUser(user._id);
+                  }}
+                  className={`btn btn-md ${
+                    user.isBanded ? "btn-accent" : "btn-secondary"
+                  }`}
+                >
+                  {user.isBanded ? "unBand" : "Band"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    deleteUser(user._id);
+                  }}
+                  className="btn btn-destructive btn-md"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-
-<div className="flex gap-2">
-  <button
-    onClick={(e) => {
-      e.preventDefault();
-      blockUser(user._id);
-    }}
-    className={`px-4 py-2 rounded text-white ${
-      user.isBanded
-        ? "bg-blue-500 hover:bg-blue-600"
-        : "bg-yellow-600 hover:bg-yellow-700"
-    }`}
-  >
-    {user.isBanded ? "unBand" : "Band"}
-  </button>
-
-  <button
-    onClick={(e) => {
-      e.preventDefault();
-      deleteUser(user._id);
-    }}
-    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-  >
-    Delete
-  </button>
-</div>
-      </Link>
-    ))}
-  </div>
-</div>
+      </div>
     </div>
   );
 };

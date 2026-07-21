@@ -2,20 +2,16 @@
 
 import React, { useState } from "react";
 import { FaPlus } from "react-icons/fa";
+import { RiCloseLine } from "react-icons/ri";
 
 const CreatePost = () => {
   const [clicked, setClicked] = useState(false);
-
   const [title, setTitle] = useState("");
-  const [media, setMedia] = useState<File[]>([]);//1
-
+  const [media, setMedia] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-
-  const handlePost = async (
-    e: React.FormEvent
-  ) => {
+  const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setError("");
@@ -30,14 +26,11 @@ const CreatePost = () => {
         formData.append("media", file);
       });
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/posts`,
-        {
-          method: "POST",
-          credentials: "include",
-          body: formData,
-        }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
 
       const data = await res.json();
 
@@ -49,9 +42,8 @@ const CreatePost = () => {
       console.log(data.post);
 
       setTitle("");
-      // setMedia([]);
       setClicked(false);
-      window.location.reload(); // Refresh the page to show the new post
+      window.location.reload();
     } catch (err) {
       console.log(err);
       setError("Something went wrong");
@@ -61,148 +53,171 @@ const CreatePost = () => {
   };
 
   return (
-    <div>
-      <FaPlus
+    <>
+      <button
+        type="button"
         onClick={() => setClicked(true)}
-        className="text-3xl cursor-pointer"
-      />
+        className="nav-link bg-olive-900 hover:bg-olive-800/90 "
+        aria-label="Create post"
+      >
+        <FaPlus className="text-base text-white" />
+        <span className="hidden sm:inline text-white">Create</span>
+      </button>
 
       {clicked && (
         <div
           onClick={() => setClicked(false)}
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="create-post-title"
         >
           <form
             onClick={(e) => e.stopPropagation()}
             onSubmit={handlePost}
-            className="bg-white p-5 rounded flex flex-col gap-4 w-[500px] max-h-[90vh] overflow-y-auto"
+            className="modal-content max-w-lg"
           >
-            <h1 className="text-2xl font-bold">
-              Create Post
-            </h1>
+            <div className="modal-header">
+              <h2 id="create-post-title" className="text-lg font-semibold">
+                Create Post
+              </h2>
+              <button
+                type="button"
+                onClick={() => setClicked(false)}
+                className="btn btn-ghost btn-icon btn-sm"
+                aria-label="Close"
+              >
+                <RiCloseLine className="text-xl" />
+              </button>
+            </div>
 
-            {/* title */}
-            <input
-              type="text"
-              placeholder="Post title"
-              value={title}
-              onChange={(e) =>
-                setTitle(e.target.value)
-              }
-              className="border p-2 rounded"
-            />
-
-            {/* upload */}
-            <input
-              type="file"
-              multiple
-              accept="image/*,video/*"
-         onChange={(e) => {
-  console.log("onChange fired");
-
-  const files = e.target.files;
-  // console.log(files);
-
-  if (!files) 
-    {
-      console.log("No files selected");
-      return;
-
-    }
-
-  console.log(Array.from(files));
-
-  setMedia((prev) => {
-    const updated = [...prev, ...Array.from(files)];
-    console.log(updated);
-    return updated;
-  });
-
-
-}}
-              className="border p-2 rounded"
-            />
-
-            {/* preview */}
-            {media.length > 0 && (
-              <div className="grid grid-cols-2 gap-3">
-                {media.map((file, index) => (
-                  <div
-                    key={index}
-                    className="relative border rounded overflow-hidden"
-                  >
-                    {/* remove */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                         e.stopPropagation();
-                        setMedia((prev) =>
-                          prev.filter(
-                            (_, i) => i !== index
-                          )
-                        )
-                      }}
-                      className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500 text-white z-10"
-                    >
-                      ✕
-                    </button>
-
-                    {/* order */}
-                    <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-10">
-                      #{index + 1}
-                    </div>
-
-                    {/* image */}
-                    {file.type.startsWith(
-                      "image"
-                    ) ? (
-                      <img
-                        src={URL.createObjectURL(
-                          file
-                        )}
-                        className="w-full h-48 object-cover"
-                        alt=""
-                      />
-                    ) : (
-                      <video
-                        src={URL.createObjectURL(
-                          file
-                        )}
-                        controls
-                        className="w-full h-48 object-cover"
-                      />
-                    )}
-
-                    {/* file name */}
-                    <div className="p-2 text-xs break-all">
-                      {file.name}
-                    </div>
-                  </div>
-                ))}
+            <div className="modal-body space-y-4">
+              <div>
+                <label htmlFor="post-title" className="label">
+                  Title
+                </label>
+                <input
+                  id="post-title"
+                  type="text"
+                  placeholder="What's on your mind?"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="input"
+                />
               </div>
-            )}
 
-            {error && (
-              <p className="text-red-500 text-sm">
-                {error}
-              </p>
-            )}
+              <div>
+                <label htmlFor="post-media" className="label">
+                  Media
+                </label>
+                <input
+                  id="post-media"
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  onChange={(e) => {
+                    console.log("onChange fired");
 
-            <button
-              type="submit"
-              disabled={
-                loading || media.length === 0
-              }
-              className="bg-black text-white p-2 rounded disabled:bg-gray-400"
-            >
-              {loading
-                ? "Posting..."
-                : "Create Post"}
-            </button>
+                    const files = e.target.files;
+
+                    if (!files) {
+                      console.log("No files selected");
+                      return;
+                    }
+
+                    console.log(Array.from(files));
+
+                    setMedia((prev) => {
+                      const updated = [...prev, ...Array.from(files)];
+                      console.log(updated);
+                      return updated;
+                    });
+                  }}
+                  className="input file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-surface-hover file:text-foreground"
+                />
+              </div>
+
+              {media.length > 0 && (
+                <div className="media-preview-grid">
+                  {media.map((file, index) => (
+                    <div
+                      key={index}
+                      className="relative card overflow-hidden"
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMedia((prev) =>
+                            prev.filter((_, i) => i !== index)
+                          );
+                        }}
+                        className="absolute top-2 right-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-white text-xs hover:bg-destructive-hover transition-colors"
+                        aria-label={`Remove ${file.name}`}
+                      >
+                        ✕
+                      </button>
+
+                      <div className="absolute top-2 left-2 z-10 badge">
+                        #{index + 1}
+                      </div>
+
+                      {file.type.startsWith("image") ? (
+                        <img
+                          src={URL.createObjectURL(file)}
+                          className="media-thumb"
+                          alt=""
+                        />
+                      ) : (
+                        <video
+                          src={URL.createObjectURL(file)}
+                          controls
+                          className="media-thumb"
+                        />
+                      )}
+
+                      <div className="p-2 text-xs text-muted truncate">
+                        {file.name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {error && (
+                <p className="text-error text-sm" role="alert">
+                  {error}
+                </p>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                onClick={() => setClicked(false)}
+                className="btn btn-secondary btn-md"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading || media.length === 0}
+                className="btn btn-primary btn-md"
+              >
+                {loading ? (
+                  <>
+                    <span className="spinner" aria-hidden />
+                    Posting...
+                  </>
+                ) : (
+                  "Create Post"
+                )}
+              </button>
+            </div>
           </form>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

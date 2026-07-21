@@ -1,243 +1,266 @@
-"use client"
-import { useUserData } from '@/store/userData'
-import React, { useEffect } from 'react'
-import { FaPlus, FaRegComment } from 'react-icons/fa'
-import CommentMenu from './CommentMenu'
+"use client";
 
-const Comments = ({ postId, commentsCount ,setPost}: any) => {
-    const { id } = useUserData()
-    const [clicked, setClicked] = React.useState(false)
-    const [commentText, setCommentText] = React.useState("")
-    const [commentImage, setCommentImage] = React.useState<File | null>(null)
-    const [comments, setComments] = React.useState<any[]>([])
-    const fileInputRef = React.useRef<HTMLInputElement | null>(null);
-    const [previewImage, setPreviewImage] = React.useState<string | null>(null);
-    const [loading, setLoading] = React.useState(false)
-    const getPostComments = async () => {
-        try {
-            const res = await fetch(
-                `http://localhost:5000/posts/comments/${postId}`,
-                {
-                    method: "GET",
-                    credentials: "include"
-                }
-            );
-            const data = await res.json();
-            if (!res.ok) {
-                alert("Error: " + data.msg);
-                return;
-            }
-            console.log(data);
-       
-            setComments(data.comments);
+import { useUserData } from "@/store/userData";
+import React from "react";
+import { FaImage, FaRegComment } from "react-icons/fa";
+import { RiCloseLine, RiSendPlaneFill } from "react-icons/ri";
+import CommentMenu from "./CommentMenu";
+import type { Comment, Post } from "@/types";
 
-        } catch (error) {
-            console.log(error);
+type CommentsProps = {
+  postId: string;
+  commentsCount: number;
+  setPost?: React.Dispatch<React.SetStateAction<Post | null>>;
+};
+
+const Comments = ({ postId, commentsCount, setPost }: CommentsProps) => {
+  const { id } = useUserData();
+  const [clicked, setClicked] = React.useState(false);
+  const [commentText, setCommentText] = React.useState("");
+  const [commentImage, setCommentImage] = React.useState<File | null>(null);
+  const [comments, setComments] = React.useState<Comment[]>([]);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const [previewImage, setPreviewImage] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
+
+  const getPostComments = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/posts/comments/${postId}`,
+        {
+          method: "GET",
+          credentials: "include",
         }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        alert("Error: " + data.msg);
+        return;
+      }
+      console.log(data);
+
+      setComments(data.comments);
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-    const sendComment = async () => {
-        try {
-            setLoading(true)
-            const formData = new FormData();
+  const sendComment = async () => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
 
-            formData.append("comment", commentText);
+      formData.append("comment", commentText);
 
-            if (commentImage) {
-                formData.append("commentImage", commentImage);
-            }
+      if (commentImage) {
+        formData.append("commentImage", commentImage);
+      }
 
-            const res = await fetch(
-                `http://localhost:5000/posts/addComment/${postId}`,
-                {
-                    method: "POST",
-                    credentials: "include",
-
-                    body: formData,
-                }
-            );
-
-            const data = await res.json();
-            if (!res.ok) {
-                alert("Error: " + data.msg + data.err + " " + data.error + data.message);
-                setLoading(false)
-                return;
-            }
-            getPostComments();
-            setCommentText("");
-            setCommentImage(null);
-            setPreviewImage(null);
-            console.log(data);
-            setLoading(false)
-            if(setPost) {
-                setPost((prev: any) => {
-                    return {
-                        ...prev,
-                        commentsCount: prev.commentsCount + 1
-                    }
-                })
-            }
-        } catch (error) {
-            setLoading(false)
-            console.log(error);
+      const res = await fetch(
+        `http://localhost:5000/posts/addComment/${postId}`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
         }
-    };
+      );
 
+      const data = await res.json();
+      if (!res.ok) {
+        alert(
+          "Error: " +
+            data.msg +
+            data.err +
+            " " +
+            data.error +
+            data.message
+        );
+        setLoading(false);
+        return;
+      }
+      getPostComments();
+      setCommentText("");
+      setCommentImage(null);
+      setPreviewImage(null);
+      console.log(data);
+      setLoading(false);
+      if (setPost) {
+        setPost((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            commentsCount: prev.commentsCount + 1,
+          };
+        });
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
 
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => {
+          setClicked(true);
+          getPostComments();
+        }}
+        className="flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors"
+      >
+        <FaRegComment className="text-base" />
+        <span>
+          {commentsCount} {commentsCount === 1 ? "Comment" : "Comments"}
+        </span>
+      </button>
 
+      {clicked && (
+        <div
+          onClick={() => setClicked(false)}
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="comments-modal-title"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="modal-content max-w-md flex flex-col max-h-[85vh]"
+          >
+            {loading && (
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-foreground/80 text-primary-foreground rounded-xl">
+                <div className="flex items-center gap-2">
+                  <span className="spinner" aria-hidden />
+                  <p>Sending comment...</p>
+                </div>
+              </div>
+            )}
 
-    return (
-        <div>
-
-            <div onClick={() => {
-                setClicked(true)
-                getPostComments();
-            }} className='cursor-pointer flex items-center gap-1'>
-                <FaRegComment />
-                <span>{commentsCount} Comments</span>
-
-
+            <div className="modal-header shrink-0">
+              <h2 id="comments-modal-title" className="text-lg font-semibold">
+                Comments
+              </h2>
+              <button
+                type="button"
+                onClick={() => setClicked(false)}
+                className="btn btn-ghost btn-icon btn-sm"
+                aria-label="Close"
+              >
+                <RiCloseLine className="text-xl" />
+              </button>
             </div>
 
-            {clicked &&
-                <div
-                    onClick={() => setClicked(false)}
-                    className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-                >
-
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        className="relative bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden"
-                    >
-                        {loading && (
-                            <div className="absolute inset-0 text-white text-lg bg-black/90 z-30 flex  items-center justify-center m-auto">
-                                <p>Sending comment...</p>
-                            </div>
-                        )}
-                        {/* header */}
-                        <div className="border-b p-4 flex items-center justify-between">
-                            <h2 className="text-xl font-semibold">Comments</h2>
-
-                            <button
-                                onClick={() => setClicked(false)}
-                                className="text-gray-500 hover:text-black text-xl"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        {/* comments */}
-                        <div className="h-[350px] overflow-y-auto p-4 space-y-3">
-                            {comments.length === 0 ? (
-                                <p className="text-gray-500 text-center">
-                                    No comments yet
-                                </p>
-                            ) : (
-                                comments.map((comment: any) => (
-                                    <div
-                                        key={comment._id}
-                                        className="bg-gray-100 rounded-xl p-3 "
-                                    >
-                                        <div className="flex items-center gap-2 justify-between">
-                                        <p className="text-sm">
-                                            {comment.comment}
-                                        </p>
-
-
-                                        {comment.userid._id === id && (
-                                            <CommentMenu setComments={setComments} commentId={comment._id} comment={comment.comment} />
-                                        )}
-</div>
-                                        {comment.commentImage && (
-                                            <img
-                                                src={comment.commentImage}
-                                                alt="comment"
-                                                className="mt-2 rounded-lg w-full max-h-60 object-cover"
-                                            />
-                                        )}
-                                    </div>
-                                ))
-                            )}
-                        </div>
-
-                        {/* preview image */}
-                        {previewImage && (
-                            <div className="px-4 pb-2">
-                                <div className="relative">
-                                    <img
-                                        src={previewImage}
-                                        alt="preview"
-                                        className="w-full h-52 object-cover rounded-xl border"
-                                    />
-
-                                    <button
-                                        onClick={() => {
-                                            setPreviewImage(null);
-                                            setCommentImage(null);
-
-                                            if (fileInputRef.current) {
-                                                fileInputRef.current.value = "";
-                                            }
-                                        }}
-                                        className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-lg text-sm"
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* input area */}
-                        <div className="border-t p-4 flex items-center gap-2">
-                            <input
-                                type="text"
-                                value={commentText}
-                                onChange={(e) =>
-                                    setCommentText(e.target.value)
-                                }
-                                placeholder="Write a comment..."
-                                className="flex-1 border rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
-                            />
-
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="bg-gray-200 hover:bg-gray-300 p-3 rounded-xl"
-                            >
-                                <FaPlus />
-                            </button>
-
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                className="hidden"
-                                onChange={(e) => {
-                                    if (
-                                        e.target.files &&
-                                        e.target.files[0]
-                                    ) {
-                                        const file = e.target.files[0];
-
-                                        setCommentImage(file);
-                                        setPreviewImage(
-                                            URL.createObjectURL(file)
-                                        );
-                                    }
-                                }}
-                            />
-
-                            <button
-                                onClick={sendComment}
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl"
-                            >
-                                Send
-                            </button>
-                        </div>
-                    </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px] max-h-[350px]">
+              {comments.length === 0 ? (
+                <div className="empty-state py-8">
+                  <p className="text-sm">No comments yet</p>
                 </div>
-            }
+              ) : (
+                comments.map((comment) => (
+                  <div
+                    key={comment._id}
+                    className="rounded-xl p-3 bg-surface-hover border border-border"
+                  >
+                    <div className="flex items-start gap-2 justify-between">
+                      <p className="text-sm flex-1">{comment.comment}</p>
 
+                      {comment.userid._id === id && (
+                        <CommentMenu
+                          setComments={setComments}
+                          commentId={comment._id}
+                          comment={comment.comment}
+                        />
+                      )}
+                    </div>
+                    {comment.commentImage && (
+                      <div className="mt-2 rounded-lg overflow-hidden bg-background">
+                        <img
+                          src={comment.commentImage}
+                          alt="Comment attachment"
+                          className="max-w-full max-h-60 w-auto h-auto object-contain mx-auto"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            {previewImage && (
+              <div className="px-4 pb-2 shrink-0">
+                <div className="relative rounded-xl overflow-hidden border border-border">
+                  <img
+                    src={previewImage}
+                    alt="Preview"
+                    className="w-full max-h-52 object-contain bg-surface-hover"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPreviewImage(null);
+                      setCommentImage(null);
+
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
+                    }}
+                    className="absolute top-2 right-2 btn btn-destructive btn-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="border-t border-border p-4 flex items-center gap-2 shrink-0">
+              <input
+                type="text"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Write a comment..."
+                className="input flex-1"
+                aria-label="Comment text"
+              />
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="btn btn-secondary btn-icon shrink-0"
+                aria-label="Attach image"
+              >
+                <FaImage />
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+
+                    setCommentImage(file);
+                    setPreviewImage(URL.createObjectURL(file));
+                  }
+                }}
+              />
+
+              <button
+                type="button"
+                onClick={sendComment}
+                className="btn btn-accent btn-icon shrink-0"
+                aria-label="Send comment"
+              >
+                <RiSendPlaneFill />
+              </button>
+            </div>
+          </div>
         </div>
-    )
-}
+      )}
+    </div>
+  );
+};
 
-export default Comments
+export default Comments;

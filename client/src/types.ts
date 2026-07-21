@@ -1,39 +1,92 @@
-type UserData = {
-
-  userName: string | null;
-  email: string | null;
-  id: string | null;
-  photo: string | null;
-
-  setUserName: (userName: string | null) => void;
-  setEmail: (email: string | null) => void;
-  setId: (id: string | null) => void;
-  setPhoto: (avatar: string | null) => void;
-
-  clearUserData: () => void;
+export type Media = {
+  type: "image" | "video";
+  url: string;
+  order: number;
 };
-type Post = {
+
+export type PostAuthor = {
+  _id: string;
+  name: string;
+  profileImageURL: string;
+};
+
+export type Post = {
+  _id: string;
+  author: PostAuthor;
+  title: string;
+  media: Media[];
+  likes: string[];
+  likesCount: number;
+  comments: Comment[];
+  commentsCount: number;
+  createdAt: string;
+  updatedAt: string;
+  isFollowingAuthor?: boolean;
+  __v?: number;
+};
+
+export type Comment = {
+  _id: string;
+  comment: string;
+  commentImage?: string;
+  userid: {
     _id: string;
+  };
+};
 
-    author: {
-        _id: string;
-        profileImageURL: string;
-        name: string;
-    };
+export type LikeUser = {
+  _id: string;
+  name: string;
+  profileImageURL: string;
+};
 
-    title: string;
+export type SearchUser = {
+  _id: string;
+  name: string;
+  username: string;
+  email: string;
+  profileImageURL?: string;
+};
 
-    images: string[];
+export type FollowUser = {
+  _id: string;
+  username: string;
+  profileImageURL: string;
+};
 
-    likes: string[];
+export type ProfileUser = {
+  _id: string;
+  name: string;
+  username: string;
+  email: string;
+  profileImageURL: string;
+  role: string;
+  posts: Post[];
+};
 
-    likesCount: number;
+export type ProfileData = {
+  user: ProfileUser;
+  postsCount: number;
+  followersCount: number;
+  followingCount: number;
+  isFollowingAuthor?: boolean;
+};
 
-    comments: string[];
+export type SiteStatistics = {
+  totalUsers: number;
+  blockedUsers: number;
+  activeUsers: number;
+  admins: number;
+  newUsersLastWeek: number;
+  totalPosts: number;
+};
 
-    createdAt: string;
-
-    updatedAt: string;
-
-    __v: number;
+export type AdminUser = {
+  _id: string;
+  name: string;
+  username: string;
+  email: string;
+  profileImageURL: string;
+  isBanded: boolean;
+  role: string;
 };
