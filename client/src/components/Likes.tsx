@@ -39,7 +39,7 @@ const Likes = ({ post }: LikesProps) => {
     <div>
       <button
         type="button"
-        className="text-sm text-muted hover:text-foreground transition-colors"
+        className="text-lg  text-muted hover:text-foreground transition-colors"
         onClick={() => {
           setClicked(true);
           getLikes(post._id);

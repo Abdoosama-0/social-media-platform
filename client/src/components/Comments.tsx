@@ -107,7 +107,7 @@ const Comments = ({ postId, commentsCount, setPost }: CommentsProps) => {
           setClicked(true);
           getPostComments();
         }}
-        className="flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors"
+        className="flex items-center gap-1.5 text-lg  text-muted hover:text-foreground transition-colors"
       >
         <FaRegComment className="text-base" />
         <span>

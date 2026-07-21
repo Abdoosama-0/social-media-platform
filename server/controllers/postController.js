@@ -65,6 +65,8 @@ const getPosts = async (req, res) => {
 };
 const getPost = async (req, res) => {
   try {
+        const currentUserId = req.user.userID;
+
     const { postId } = req.params;
 
     const currentUser = await User.findById(req.user.userID)
@@ -98,6 +100,9 @@ const getPost = async (req, res) => {
       // 👇 نفس فكرة getPosts
       isFollowingAuthor: followingSet.has(
         post.author._id.toString()
+      ),
+      isLiked: post.likes.some(
+        (id) => id.toString() === currentUserId
       ),
     };
 

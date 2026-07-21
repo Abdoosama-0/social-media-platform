@@ -47,9 +47,9 @@ const Like = ({ setPosts, postId, setPost, post }: LikeProps) => {
       aria-label="Like post"
     >
       {post.isLiked ? (
-        <AiFillLike className="text-accent" />
+        <AiFillLike className="text-accent hover:text-muted text-lg cursor-pointer" />
       ) : (
-        <AiFillLike className="text-muted" />
+        <AiFillLike className="text-muted hover:text-accent text-lg cursor-pointer" />
       )
       }
 

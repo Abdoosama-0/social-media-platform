@@ -34,6 +34,8 @@ const findUsers = async (req, res) => {
 
 const getMyData = async (req, res) => {
   try {
+    const currentUserId = req.user.userID;
+
     const user = await User.findById(req.user.userID)
       .populate({
         path: "posts",
@@ -55,10 +57,14 @@ const formattedPosts = user.posts
   .map((post) => ({
     ...post,
     commentsCount: post.comments?.length || 0,
+     isLiked: post.likes.some(
+      (id) => id.toString() === currentUserId
+    ),
   }));
+  user.posts = formattedPosts;
+
     return res.status(200).json({
       user,
-      posts: formattedPosts,
       postsCount: formattedPosts.length,
       followersCount: user.followers.length,
       followingCount: user.following.length,
@@ -206,7 +212,10 @@ const formattedPosts = user.posts
   .map((post) => ({
     ...post,
     commentsCount: post.comments?.length || 0,
-    isFollowingAuthor
+    isFollowingAuthor,
+    isLiked: post.likes.some(
+      (id) => id.toString() === currentUserId
+    ),
   }));
   
     return res.status(200).json({
@@ -215,7 +224,6 @@ const formattedPosts = user.posts
         posts: formattedPosts,
       },
 
-      posts: formattedPosts,
 
       postsCount: formattedPosts.length,
 

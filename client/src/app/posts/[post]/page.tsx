@@ -223,8 +223,8 @@ const Page = () => {
           </div>
         )}
 
-        <div className="flex items-center gap-4 px-4 sm:px-5 py-4">
-          <Like setPost={setPost} postId={post._id} />
+        <div className="flex items-center gap-2 px-4 sm:px-5 py-4">
+          <Like post={post} setPost={setPost} postId={post._id} />
           <Likes post={post} />
           <Comments
             setPost={setPost}
