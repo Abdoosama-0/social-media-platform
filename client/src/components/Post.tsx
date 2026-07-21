@@ -31,7 +31,7 @@ type Props = {
   setPosts?: React.Dispatch<React.SetStateAction<PostType[]>>;
 };
 
-const Post = ({ post, setPosts }: Props) => {
+const Post = ({ post, setPosts }: any) => {
   const { id } = useUserData.getState();
 
   const [preview, setPreview] = React.useState("");
@@ -67,8 +67,8 @@ const Post = ({ post, setPosts }: Props) => {
 
       if (!res.ok) return;
 
-      setPosts?.((prev) =>
-        prev.map((p) =>
+      setPosts?.((prev:any) =>
+        prev.map((p:any) =>
           p.author._id === userId
             ? {
                 ...p,
