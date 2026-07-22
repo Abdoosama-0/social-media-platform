@@ -12,7 +12,6 @@ const options = {
       {
         url: "http://localhost:5000",
       },
-      
     ],
     components: {
       securitySchemes: {
@@ -24,7 +23,10 @@ const options = {
       },
     },
   },
-  apis: ["./routes/*.js"],
+
+  apis: [
+    "./docs/*.swagger.js",
+  ],
 };
 
 const swaggerSpec = swaggerJsDoc(options);

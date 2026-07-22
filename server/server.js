@@ -23,6 +23,7 @@ app.use(
     },
   })
 );
+console.log("Swagger docs available at http://localhost:5000/api-docs");
 
 //===============================================
 app.get('/',(req,res)=>{
