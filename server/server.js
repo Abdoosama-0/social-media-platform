@@ -27,7 +27,7 @@ console.log("Swagger docs available at http://localhost:5000/api-docs");
 
 //===============================================
 app.get('/',(req,res)=>{
-    res.json({msg:"hello in SocialNet-API"})
+    res.json({msg:$`hello in SocialNet-API\n go to docs ${process.env.API_URL}/api-docs`,})
 })
 //===============================================================================
 app.use(cookieParser())
