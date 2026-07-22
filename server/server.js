@@ -23,11 +23,11 @@ app.use(
     },
   })
 );
-console.log("Swagger docs available at http://localhost:5000/api-docs");
+console.log(`Swagger docs available at ${process.env.API_URL}/api-docs`);
 
 //===============================================
 app.get('/',(req,res)=>{
-    res.json({msg:`hello in SocialNet-API\n go to docs ${process.env.API_URL}/api-docs`,})
+    res.json({msg:`hello in SocialNet-API go to docs ${process.env.API_URL}/api-docs`,})
 })
 //===============================================================================
 app.use(cookieParser())
