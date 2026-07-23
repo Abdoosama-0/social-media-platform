@@ -11,9 +11,10 @@ type CommentsProps = {
   postId: string;
   commentsCount: number;
   setPost?: React.Dispatch<React.SetStateAction<Post | null>>;
+  setPosts?: React.Dispatch<React.SetStateAction<Post[]>>;
 };
 
-const Comments = ({ postId, commentsCount, setPost }: CommentsProps) => {
+const Comments = ({ postId, commentsCount , setPost, setPosts }: CommentsProps) => {
   const { id } = useUserData();
   const [clicked, setClicked] = React.useState(false);
   const [commentText, setCommentText] = React.useState("");
@@ -78,13 +79,27 @@ const Comments = ({ postId, commentsCount, setPost }: CommentsProps) => {
         setLoading(false);
         return;
       }
+  
       getPostComments();
       setCommentText("");
       setCommentImage(null);
       setPreviewImage(null);
       console.log(data);
       setLoading(false);
+      setPosts?.((prev) => {
+        if (!prev) return prev;
+        return prev.map((post) =>
+          post._id === postId
+            ? {
+                ...post,
+                commentsCount: post.commentsCount + 1,
+              }
+            : post
+        );
+      });
       if (setPost) {
+
+         
         setPost((prev) => {
           if (!prev) return prev;
           return {
@@ -93,6 +108,8 @@ const Comments = ({ postId, commentsCount, setPost }: CommentsProps) => {
           };
         });
       }
+  
+
     } catch (error) {
       setLoading(false);
       console.log(error);

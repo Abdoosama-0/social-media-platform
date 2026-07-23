@@ -241,6 +241,8 @@ const Post = ({ post, setPosts }: any) => {
         <Comments
           postId={post._id}
           commentsCount={post.commentsCount}
+          setPosts={setPosts}
+          
         />
       </div>
     </article>

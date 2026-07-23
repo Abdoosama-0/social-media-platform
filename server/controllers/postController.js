@@ -408,8 +408,56 @@ const imageUrl=req.file?req.file.path:undefined
     res.status(200).json({ msg: "Post updated successfully", post: postAfter });
 
 }
+
+const checkPostsExist = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const currentUserId = req.user.userID;
+
+    const currentUser = await User.findById(currentUserId)
+      .select("following")
+      .lean();
+
+    if (!currentUser) {
+      return res.status(404).json({
+        msg: "User not found",
+      });
+    }
+
+    const followingSet = new Set(
+      currentUser.following.map((id) => id.toString())
+    );
+
+    const posts = await Post.find({
+      _id: { $in: ids },
+    })
+      .populate("author", "name profileImageURL")
+      .lean();
+
+    const formattedPosts = posts.map((post) => ({
+      ...post,
+      commentsCount: post.comments?.length || 0,
+
+      isFollowingAuthor: followingSet.has(
+        post.author._id.toString()
+      ),
+
+      isLiked: post.likes.some(
+        (id) => id.toString() === currentUserId
+      ),
+    }));
+
+    res.status(200).json({
+      posts: formattedPosts,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
 //=============================================
-module.exports={getPostLikes,getPostComments,getPosts,createPost,Like,getPost,getUserPosts,addComment,updatePost,deletePost,deleteComment,updateComment,getMyPosts}
+module.exports={checkPostsExist,getPostLikes,getPostComments,getPosts,createPost,Like,getPost,getUserPosts,addComment,updatePost,deletePost,deleteComment,updateComment,getMyPosts}
 
 
 

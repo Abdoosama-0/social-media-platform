@@ -42,7 +42,7 @@ const Page = () => {
         setError(data.msg || "Login failed");
         return;
       }
-      alert("success");
+      alert("logged in successfully");
 
       setUser({
         userName: data.userData.username,

@@ -53,7 +53,7 @@ const Page = () => {
     );
   }
 
-  return <Profile data={data} posts={posts} setPosts={setPosts} />;
+  return <Profile setData={setData} data={data} posts={posts} setPosts={setPosts} />;
 };
 
 export default Page;

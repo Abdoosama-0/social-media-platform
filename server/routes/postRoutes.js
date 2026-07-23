@@ -12,7 +12,7 @@ const {
   deletePost,
   deleteComment,
   updateComment,
-  getMyPosts,getPostComments,getPostLikes
+  getMyPosts,getPostComments,getPostLikes,checkPostsExist
 } = require('../controllers/postController')
 
 const upload = require('../config/multer')
@@ -27,7 +27,7 @@ router.get('/', getPosts)
 router.get('/likes/:postId', getPostLikes)
 router.get('/comments/:postId', getPostComments)
 
-
+router.post("/exists", checkPostsExist);
 router.get('/My', getMyPosts)
 
 router.post('/', 

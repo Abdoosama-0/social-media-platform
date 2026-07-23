@@ -11,9 +11,10 @@ type ProfileProps = {
   data: ProfileData | null;
   posts: PostType[];
   setPosts?: React.Dispatch<React.SetStateAction<PostType[]>>;
+  setData?: React.Dispatch<React.SetStateAction<any | null>>;
 };
 
-const Profile = ({ data, posts, setPosts }: ProfileProps) => {
+const Profile = ({setData, data, posts, setPosts }: ProfileProps) => {
   const handleFollowToggle = async (userId: string) => {
     try {
       const res = await fetch(
@@ -25,6 +26,17 @@ const Profile = ({ data, posts, setPosts }: ProfileProps) => {
       );
 
       if (!res.ok) return;
+      setData?.((prev:any) =>
+        prev
+          ? {
+              ...prev,
+              isFollowingAuthor: !prev.isFollowingAuthor,
+              followersCount: prev.isFollowingAuthor
+                ? prev.followersCount - 1
+                : prev.followersCount + 1,
+            }
+          : prev
+      );
 
       setPosts?.((prev) =>
         prev.map((p) =>
@@ -79,15 +91,15 @@ const Profile = ({ data, posts, setPosts }: ProfileProps) => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {!isOwnProfile && data.isFollowingAuthor && (
-                <button
-                  type="button"
-                  onClick={() => handleFollowToggle(data.user._id)}
-                  className="btn btn-secondary btn-md"
-                >
-                  {data.isFollowingAuthor ? "Unfollow" : "Follow"}
-                </button>
-              )}
+          {!isOwnProfile && (
+  <button
+    type="button"
+    onClick={() => handleFollowToggle(data.user._id)}
+    className="btn btn-secondary btn-md"
+  >
+    {data.isFollowingAuthor ? "Unfollow" : "Follow"}
+  </button>
+)}
               {isOwnProfile && (
                 <EditProfile
                   profileImageURL={data.user.profileImageURL}

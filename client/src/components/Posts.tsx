@@ -52,16 +52,40 @@ const Posts = () => {
       setLoading(false);
     }
   };
+const validateLocalPosts = async () => {
+  const savedPosts = JSON.parse(localStorage.getItem("posts") || "[]");
 
-  useEffect(() => {
-    const savedPosts = localStorage.getItem("posts");
+  if (savedPosts.length === 0) return [];
 
-    if (savedPosts) {
-      setPosts(JSON.parse(savedPosts));
+  const ids = savedPosts.map((post: PostType) => post._id);
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/posts/exists`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ids }),
     }
+  );
 
-    fetchPosts(1);
-  }, []);
+  if (!res.ok) return [];
+
+  const data = await res.json();
+
+  localStorage.setItem("posts", JSON.stringify(data.posts));
+  return data.posts;
+};
+useEffect(() => {
+  const init = async () => {
+ await validateLocalPosts();
+await fetchPosts(1);
+  };
+
+  init();
+}, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,7 +100,6 @@ const Posts = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, [hasMore, loading]);
 
