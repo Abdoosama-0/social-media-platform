@@ -7,7 +7,7 @@ export default function PostClient({ postId }: { postId: string }) {
 
   const getPost = async () => {
     alert(postId)
-    const res = await fetch(`http://localhost:5000/posts/${postId}`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}`);
     const data = await res.json();
 
     setPost(data.post);

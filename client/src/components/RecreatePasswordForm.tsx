@@ -24,7 +24,7 @@ export default function RecreatePassword() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/auth/recreatePassword?token=${token}`,
+        `${process.env.NEXT_PUBLIC_API_URL}auth/recreatePassword?token=${token}`,
         {
           method: "POST",
           credentials: "include",

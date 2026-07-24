@@ -21,7 +21,7 @@ const Search = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/users/search/?q=${value}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/users/search/?q=${value}`,
         {
           credentials: "include",
         }

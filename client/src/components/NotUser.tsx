@@ -20,7 +20,7 @@ const NotUser = () => {
           </Link>
         </div>
         <a
-          href="http://localhost:5000/auth/google"
+          href={`${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
           className="btn btn-secondary btn-md w-full sm:w-auto inline-flex"
         >
           Login with Google

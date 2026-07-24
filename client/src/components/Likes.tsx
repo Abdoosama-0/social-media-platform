@@ -15,7 +15,7 @@ const Likes = ({ post }: LikesProps) => {
   const getLikes = async (postId: string) => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:5000/posts/likes/${postId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/likes/${postId}`, {
         method: "GET",
         credentials: "include",
       });
