@@ -37,6 +37,7 @@ export default function Home() {
       setIsAuthenticated(loggedIn);
       setChecking(false);
       if (!loggedIn) {
+        alert("You are not logged in. Please log in to continue.");
         router.push("/login");
       }
       if (loggedIn) {
