@@ -27,6 +27,7 @@ export default function Home() {
       photo: data.user.profileImageURL,
       role: data.user.role,
     });
+    alert("Welcome back, " + data.user.username + "!");
     return true;
   };
 
@@ -37,6 +38,9 @@ export default function Home() {
       setChecking(false);
       if (!loggedIn) {
         router.push("/login");
+      }
+      if (loggedIn) {
+        router.push("/");
       }
     };
 
