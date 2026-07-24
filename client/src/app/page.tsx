@@ -18,6 +18,7 @@ export default function Home() {
     });
     const data = await res.json();
     if (!res.ok) {
+      alert("wrong");
       return false;
     }
     setUser({
